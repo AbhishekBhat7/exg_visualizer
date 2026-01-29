@@ -1,5 +1,5 @@
 import 'dart:async';  
-import 'package:exg_visualizer/BLE/ble_device1.dart';
+import 'package:exg_visualizer/BLE/ble_device3.dart';
 import 'package:exg_visualizer/Libraries/Colors/Colors.dart';
 import 'package:exg_visualizer/Libraries/Fonts/text_styles.dart';
 import 'package:flutter/material.dart';
