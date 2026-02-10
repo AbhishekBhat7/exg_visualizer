@@ -1,5 +1,5 @@
-import 'dart:async';  
-import 'package:exg_visualizer/BLE/ble_device3.dart';
+import 'dart:async';   
+import 'package:exg_visualizer/BLE/ble_device.dart';
 import 'package:exg_visualizer/Libraries/Colors/Colors.dart';
 import 'package:exg_visualizer/Libraries/Fonts/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -43,8 +43,6 @@ class _BluetoothPageState extends State<BluetoothPage> {
   }
 
   Future<void> _loadSavedDevices() async {
-    // final savedDevices = await DatabaseHelper.instance.getDevices();
-    // print("Loaded ${savedDevices.length} saved devices from database.");
   }
 
   Future<void> _startScan() async {

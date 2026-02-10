@@ -1,6 +1,6 @@
-import 'package:exg_visualizer/BLE/csv_exporter1.dart';
+import 'package:exg_visualizer/BLE/csv_exporter.dart';
 import 'dart:async';
-import 'package:exg_visualizer/BLE/db1.dart';
+import 'package:exg_visualizer/BLE/db.dart';
 import 'package:exg_visualizer/Libraries/Colors/Colors.dart';
 import 'package:exg_visualizer/Libraries/Fonts/text_styles.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -41,7 +41,7 @@ class BleDevicePage extends StatefulWidget {
 
 class _BleDevicePageState extends State<BleDevicePage> {
   static const String SERVICE_UUID = "12345678-1234-1234-1234-123456789abc";
-  static const String CHARACTERISTIC_UUID = "abcdef12-3456-7890-1234-567890abcdef";
+  static const String CHARACTERISTIC_UUID = "abcdef01-1234-1234-1234-abcdefabcdef";
 
   BluetoothCharacteristic? _characteristic;
   StreamSubscription<List<int>>? _notificationSubscription;
@@ -1543,388 +1543,6 @@ class _SavedRecordingsPageState extends State<SavedRecordingsPage> {
   }
 }
 
-// =============================================================================
-// RECORDING DETAIL PAGE
-// =============================================================================
-
-// class RecordingDetailPage extends StatefulWidget {
-//   final RecordingSession session;
-//   const RecordingDetailPage({Key? key, required this.session}) : super(key: key);
-
-//   @override
-//   State<RecordingDetailPage> createState() => _RecordingDetailPageState();
-// }
-
-// class _RecordingDetailPageState extends State<RecordingDetailPage> {
-//   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
-//   List<DataPoint> _dataPoints = [];
-//   Map<String, dynamic> _stats = {};
-//   bool _isLoading = true;
-
-//   bool _showChannel1 = true;
-//   bool _showChannel2 = true;
-//   bool _showChannel3 = true;
-//   bool _showChannel4 = true;
-
-//   double? _visibleMinX;
-//   double? _visibleMaxX;
-
-//   static const Color _channel1Color = Colors.blue;
-//   static const Color _channel2Color = Colors.orange;
-//   static const Color _channel3Color = Colors.green;
-//   static const Color _channel4Color = Colors.purple;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _loadData();
-//   }
-
-//   Future<void> _loadData() async {
-//     setState(() => _isLoading = true);
-//     try {
-//       final dataPoints = await _dbHelper.getSessionDataPoints(widget.session.id!);
-//       final stats = await _dbHelper.getSessionStats(widget.session.id!);
-
-//       setState(() {
-//         _dataPoints = dataPoints;
-//         _stats = stats;
-//         _isLoading = false;
-
-//         if (_dataPoints.isNotEmpty) {
-//           _visibleMinX = _dataPoints.first.timestamp.millisecondsSinceEpoch.toDouble();
-//           _visibleMaxX = _dataPoints.last.timestamp.millisecondsSinceEpoch.toDouble();
-//         }
-//       });
-//     } catch (e) {
-//       setState(() => _isLoading = false);
-//       if (mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
-//         );
-//       }
-//     }
-//   }
-
-//   Future<void> _exportToCSV() async {
-//     await CSVExporter.exportWithDialog(
-//       context: context,
-//       session: widget.session,
-//       dataPoints: _dataPoints,
-//       stats: _stats,
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: MainColors.white,
-//       appBar: AppBar(
-//         title: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text("Recording Details", style: AppTextStyles.header),
-//             Text(widget.session.deviceName, style: AppTextStyles.regular.copyWith(fontSize: 12, color: Colors.grey[600])),
-//           ],
-//         ),
-//         backgroundColor: MainColors.white,
-//         elevation: 1,
-//         leading: IconButton(
-//           icon: const Icon(Icons.arrow_back_ios, color: MainColors.black),
-//           onPressed: () => Navigator.pop(context),
-//         ),
-//         actions: [
-//           IconButton(
-//             onPressed: _dataPoints.isNotEmpty ? _exportToCSV : null,
-//             icon: Icon(Icons.file_download, color: _dataPoints.isNotEmpty ? Colors.green : Colors.grey),
-//             tooltip: "Export CSV",
-//           ),
-//         ],
-//       ),
-//       body: _isLoading
-//           ? const Center(child: CircularProgressIndicator())
-//           : _dataPoints.isEmpty
-//               ? Center(child: Text("No data", style: AppTextStyles.bold))
-//               : SingleChildScrollView(
-//                   child: Column(
-//                     children: [
-//                       _buildSessionInfo(),
-//                       _buildStatsCard(),
-//                       _buildExportButton(),
-//                       const SizedBox(height: 16),
-//                       _buildChannelToggles(),
-//                       const SizedBox(height: 16),
-//                       _buildChartSection(),
-//                       _buildDataTable(),
-//                       const SizedBox(height: 24),
-//                     ],
-//                   ),
-//                 ),
-//     );
-//   }
-
-//   Widget _buildSessionInfo() {
-//     final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
-//     return Container(
-//       margin: const EdgeInsets.all(16),
-//       padding: const EdgeInsets.all(16),
-//       decoration: BoxDecoration(
-//         color: MainColors.primaryColor.withOpacity(0.1),
-//         borderRadius: BorderRadius.circular(12),
-//       ),
-//       child: Column(
-//         children: [
-//           Row(children: [
-//             const Icon(Icons.calendar_today, size: 18),
-//             const SizedBox(width: 8),
-//             Text("Recorded: ${dateFormat.format(widget.session.startTime)}", style: AppTextStyles.regular),
-//           ]),
-//           if (widget.session.duration != null) ...[
-//             const SizedBox(height: 8),
-//             Row(children: [
-//               const Icon(Icons.timer, size: 18),
-//               const SizedBox(width: 8),
-//               Text("Duration: ${_formatDuration(widget.session.duration!)}", style: AppTextStyles.regular),
-//             ]),
-//           ],
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildStatsCard() {
-//     return Container(
-//       margin: const EdgeInsets.symmetric(horizontal: 16),
-//       padding: const EdgeInsets.all(16),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(12),
-//         boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 1, blurRadius: 4)],
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Text("Statistics", style: AppTextStyles.bold),
-//           const SizedBox(height: 12),
-//           _buildChannelStats("Channel 1", _channel1Color, 'min_value1', 'max_value1', 'avg_value1'),
-//           const SizedBox(height: 8),
-//           _buildChannelStats("Channel 2", _channel2Color, 'min_value2', 'max_value2', 'avg_value2'),
-//           const SizedBox(height: 8),
-//           _buildChannelStats("Channel 3", _channel3Color, 'min_value3', 'max_value3', 'avg_value3'),
-//           const SizedBox(height: 8),
-//           _buildChannelStats("Channel 4", _channel4Color, 'min_value4', 'max_value4', 'avg_value4'),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildChannelStats(String name, Color color, String minKey, String maxKey, String avgKey) {
-//     return Row(
-//       children: [
-//         Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
-//         const SizedBox(width: 8),
-//         Expanded(
-//           child: Text(
-//             "$name: Min ${_formatStat(_stats[minKey])} | Max ${_formatStat(_stats[maxKey])} | Avg ${_formatStat(_stats[avgKey])}",
-//             style: const TextStyle(fontSize: 12),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   String _formatStat(dynamic v) => v != null ? (v as num).toStringAsFixed(1) : "N/A";
-
-//   Widget _buildExportButton() {
-//     return Padding(
-//       padding: const EdgeInsets.all(16),
-//       child: SizedBox(
-//         width: double.infinity,
-//         child: ElevatedButton.icon(
-//           onPressed: _exportToCSV,
-//           icon: const Icon(Icons.file_download),
-//           label: const Text("EXPORT TO CSV"),
-//           style: ElevatedButton.styleFrom(
-//             backgroundColor: Colors.green[600],
-//             foregroundColor: Colors.white,
-//             padding: const EdgeInsets.symmetric(vertical: 16),
-//             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildChannelToggles() {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 16),
-//       child: Wrap(
-//         spacing: 8,
-//         alignment: WrapAlignment.center,
-//         children: [
-//           FilterChip(label: const Text("CH 1"), selected: _showChannel1, onSelected: (v) => setState(() => _showChannel1 = v), selectedColor: _channel1Color.withOpacity(0.3)),
-//           FilterChip(label: const Text("CH 2"), selected: _showChannel2, onSelected: (v) => setState(() => _showChannel2 = v), selectedColor: _channel2Color.withOpacity(0.3)),
-//           FilterChip(label: const Text("CH 3"), selected: _showChannel3, onSelected: (v) => setState(() => _showChannel3 = v), selectedColor: _channel3Color.withOpacity(0.3)),
-//           FilterChip(label: const Text("CH 4"), selected: _showChannel4, onSelected: (v) => setState(() => _showChannel4 = v), selectedColor: _channel4Color.withOpacity(0.3)),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildChartSection() {
-//     return Padding(
-//       padding: const EdgeInsets.all(16),
-//       child: Container(
-//         height: 300,
-//         padding: const EdgeInsets.all(16),
-//         decoration: BoxDecoration(
-//           borderRadius: BorderRadius.circular(16),
-//           color: const Color(0xfff3f6f9),
-//           border: Border.all(color: Colors.grey[300]!),
-//         ),
-//         child: LineChart(_buildChartData()),
-//       ),
-//     );
-//   }
-
-//   LineChartData _buildChartData() {
-//     List<LineChartBarData> lineBars = [];
-
-//     // Calculate dynamic symmetric Y-axis
-//     double maxAbsValue = 1;
-//     for (var p in _dataPoints) {
-//       if (_showChannel1 && p.value1.abs() > maxAbsValue) maxAbsValue = p.value1.abs();
-//       if (_showChannel2 && p.value2.abs() > maxAbsValue) maxAbsValue = p.value2.abs();
-//       if (_showChannel3 && p.value3.abs() > maxAbsValue) maxAbsValue = p.value3.abs();
-//       if (_showChannel4 && p.value4.abs() > maxAbsValue) maxAbsValue = p.value4.abs();
-//     }
-//     maxAbsValue = maxAbsValue * 1.1;
-
-//     if (_showChannel1) {
-//       lineBars.add(LineChartBarData(
-//         spots: _dataPoints.map((p) => FlSpot(p.timestamp.millisecondsSinceEpoch.toDouble(), p.value1)).toList(),
-//         isCurved: true, color: _channel1Color, barWidth: 2, dotData: const FlDotData(show: false),
-//       ));
-//     }
-//     if (_showChannel2) {
-//       lineBars.add(LineChartBarData(
-//         spots: _dataPoints.map((p) => FlSpot(p.timestamp.millisecondsSinceEpoch.toDouble(), p.value2)).toList(),
-//         isCurved: true, color: _channel2Color, barWidth: 2, dotData: const FlDotData(show: false),
-//       ));
-//     }
-//     if (_showChannel3) {
-//       lineBars.add(LineChartBarData(
-//         spots: _dataPoints.map((p) => FlSpot(p.timestamp.millisecondsSinceEpoch.toDouble(), p.value3)).toList(),
-//         isCurved: true, color: _channel3Color, barWidth: 2, dotData: const FlDotData(show: false),
-//       ));
-//     }
-//     if (_showChannel4) {
-//       lineBars.add(LineChartBarData(
-//         spots: _dataPoints.map((p) => FlSpot(p.timestamp.millisecondsSinceEpoch.toDouble(), p.value4)).toList(),
-//         isCurved: true, color: _channel4Color, barWidth: 2, dotData: const FlDotData(show: false),
-//       ));
-//     }
-
-//     return LineChartData(
-//       minX: _visibleMinX,
-//       maxX: _visibleMaxX,
-//       minY: -maxAbsValue,
-//       maxY: maxAbsValue,
-//       lineBarsData: lineBars,
-//       gridData: FlGridData(
-//         show: true,
-//         horizontalInterval: maxAbsValue / 4,
-//         getDrawingHorizontalLine: (value) {
-//           if (value.abs() < 0.001) {
-//             return FlLine(color: Colors.grey[600]!, strokeWidth: 1.5);
-//           }
-//           return FlLine(color: Colors.grey[300]!, strokeWidth: 0.8);
-//         },
-//       ),
-//       titlesData: FlTitlesData(
-//         rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-//         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-//         bottomTitles: AxisTitles(
-//           sideTitles: SideTitles(
-//             showTitles: true,
-//             reservedSize: 30,
-//             getTitlesWidget: (value, meta) {
-//               final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-//               return Text(DateFormat('mm:ss').format(date), style: const TextStyle(fontSize: 10));
-//             },
-//           ),
-//         ),
-//         leftTitles: AxisTitles(
-//           sideTitles: SideTitles(
-//             showTitles: true,
-//             reservedSize: 50,
-//             getTitlesWidget: (value, meta) {
-//               if (value == meta.max || value == meta.min) return const SizedBox.shrink();
-//               return Text(
-//                 value.toStringAsFixed(1),
-//                 style: TextStyle(
-//                   fontSize: 10,
-//                   color: value.abs() < 0.001 ? Colors.grey[800] : Colors.grey[600],
-//                   fontWeight: value.abs() < 0.001 ? FontWeight.bold : FontWeight.normal,
-//                 ),
-//               );
-//             },
-//           ),
-//         ),
-//       ),
-//       borderData: FlBorderData(show: false),
-//     );
-//   }
-
-//   Widget _buildDataTable() {
-//     final displayPoints = _dataPoints.take(50).toList();
-//     return Container(
-//       margin: const EdgeInsets.symmetric(horizontal: 16),
-//       decoration: BoxDecoration(
-//         borderRadius: BorderRadius.circular(12),
-//         border: Border.all(color: Colors.grey[300]!),
-//       ),
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(16),
-//             child: Text("Data Points (${displayPoints.length}/${_dataPoints.length})", style: AppTextStyles.bold),
-//           ),
-//           const Divider(height: 1),
-//           ...displayPoints.asMap().entries.map((e) {
-//             final p = e.value;
-//             return Container(
-//               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-//               color: e.key % 2 == 0 ? Colors.white : Colors.grey[50],
-//               child: Row(
-//                 children: [
-//                   Expanded(child: Text("${e.key + 1}", style: const TextStyle(fontSize: 11))),
-//                   Expanded(flex: 2, child: Text(DateFormat('HH:mm:ss').format(p.timestamp), style: const TextStyle(fontSize: 11))),
-//                   Expanded(child: Text(p.value1.toStringAsFixed(1), style: const TextStyle(fontSize: 11))),
-//                   Expanded(child: Text(p.value2.toStringAsFixed(1), style: const TextStyle(fontSize: 11))),
-//                   Expanded(child: Text(p.value3.toStringAsFixed(1), style: const TextStyle(fontSize: 11))),
-//                   Expanded(child: Text(p.value4.toStringAsFixed(1), style: const TextStyle(fontSize: 11))),
-//                 ],
-//               ),
-//             );
-//           }),
-//         ],
-//       ),
-//     );
-//   }
-
-//   String _formatDuration(Duration d) {
-//     if (d.inHours > 0) return "${d.inHours}h ${d.inMinutes.remainder(60)}m";
-//     if (d.inMinutes > 0) return "${d.inMinutes}m ${d.inSeconds.remainder(60)}s";
-//     return "${d.inSeconds}s";
-//   }
-// }
-
-
-// =============================================================================
-// RECORDING DETAIL PAGE - WITH ZOOM CONTROLS (RESTORED)
-// =============================================================================
-
 class RecordingDetailPage extends StatefulWidget {
   final RecordingSession session;
   const RecordingDetailPage({Key? key, required this.session}) : super(key: key);
@@ -2295,102 +1913,6 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
       ),
     );
   }
-
-  // Widget _buildTimelineScrubber() {
-  //   if (_dataPoints.isEmpty) return const SizedBox.shrink();
-    
-  //   final dataMinX = _dataPoints.first.timestamp.millisecondsSinceEpoch.toDouble();
-  //   final dataMaxX = _dataPoints.last.timestamp.millisecondsSinceEpoch.toDouble();
-  //   final totalRange = dataMaxX - dataMinX;
-    
-  //   if (totalRange <= 0) return const SizedBox.shrink();
-    
-  //   final viewStart = _viewMinX ?? dataMinX;
-  //   final viewEnd = _viewMaxX ?? dataMaxX;
-    
-  //   final startRatio = ((viewStart - dataMinX) / totalRange).clamp(0.0, 1.0);
-  //   final endRatio = ((viewEnd - dataMinX) / totalRange).clamp(0.0, 1.0);
-  //   final widthRatio = (endRatio - startRatio).clamp(0.05, 1.0);
-    
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(horizontal: 16),
-  //     child: Column(
-  //       children: [
-  //         // Timeline bar
-  //         Container(
-  //           height: 24,
-  //           decoration: BoxDecoration(
-  //             color: Colors.grey[300],
-  //             borderRadius: BorderRadius.circular(4),
-  //           ),
-  //           child: LayoutBuilder(
-  //             builder: (context, constraints) {
-  //               return Stack(
-  //                 children: [
-  //                   // Visible range indicator
-  //                   Positioned(
-  //                     left: startRatio * constraints.maxWidth,
-  //                     width: widthRatio * constraints.maxWidth,
-  //                     top: 2,
-  //                     bottom: 2,
-  //                     child: Container(
-  //                       decoration: BoxDecoration(
-  //                         color: _isFullView ? Colors.green : MainColors.primaryColor,
-  //                         borderRadius: BorderRadius.circular(3),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //         const SizedBox(height: 4),
-          
-  //         // Time labels
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Text(
-  //               DateFormat('HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(dataMinX.toInt())),
-  //               style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-  //             ),
-  //             Text(
-  //               "Total: ${((dataMaxX - dataMinX) / 1000).toStringAsFixed(0)}s",
-  //               style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-  //             ),
-  //             Text(
-  //               DateFormat('HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(dataMaxX.toInt())),
-  //               style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildScrollHint() {
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-  //     margin: const EdgeInsets.symmetric(horizontal: 16),
-  //     decoration: BoxDecoration(
-  //       color: Colors.blue.withOpacity(0.1),
-  //       borderRadius: BorderRadius.circular(8),
-  //     ),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         Icon(Icons.swipe, size: 18, color: Colors.blue[700]),
-  //         const SizedBox(width: 8),
-  //         Text(
-  //           "Swipe to scroll • Pinch to zoom • Use buttons above",
-  //           style: TextStyle(fontSize: 11, color: Colors.blue[700]),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildSessionInfo() {
     final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
@@ -2861,3 +2383,569 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
     return "${d.inSeconds}s";
   }
 }
+this is the code for the ble_device page here i am going to see the graphs etc.
+
+// csv_exporter.dart
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'db.dart';
+
+class CSVExporter {
+  static Future<void> exportWithDialog({
+    required BuildContext context,
+    required RecordingSession session,
+    required List<DataPoint> dataPoints,
+    required Map<String, dynamic> stats,
+  }) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text("Exporting CSV..."),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final file = await _generateCSV(session, dataPoints, stats);
+
+      if (context.mounted) {
+        Navigator.pop(context); 
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          subject: 'EXG Recording - ${session.deviceName}',
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error exporting: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  static Future<File> _generateCSV(
+    RecordingSession session,
+    List<DataPoint> dataPoints,
+    Map<String, dynamic> stats,
+  ) async {
+    final dateFormat = DateFormat('yyyy-MM-dd_HH-mm-ss');
+    final cleanDeviceName = session.deviceName.replaceAll(RegExp(r'[^\w\s-]'), '').replaceAll(' ', '_');
+    final fileName = 'EXG_${cleanDeviceName}_${dateFormat.format(session.startTime)}.csv';
+
+    final directory = await getTemporaryDirectory();
+    final file = File('${directory.path}/$fileName');
+
+    final buffer = StringBuffer();
+
+    // Header info
+    buffer.writeln('EXG Recording Export');
+    buffer.writeln('Device,${session.deviceName}');
+    buffer.writeln('Start Time,${DateFormat('yyyy-MM-dd HH:mm:ss').format(session.startTime)}');
+    if (session.duration != null) {
+      buffer.writeln('Duration,${_formatDuration(session.duration!)}');
+    }
+    buffer.writeln('Total Points,${dataPoints.length}');
+    buffer.writeln('Channels,4');
+    buffer.writeln('');
+    
+    // Stats - Updated for 4 channels
+    buffer.writeln('Statistics');
+    buffer.writeln('Channel,Min,Max,Average');
+    buffer.writeln('Channel 1,${_formatValue(stats['min_value1'])},${_formatValue(stats['max_value1'])},${_formatValue(stats['avg_value1'])}');
+    buffer.writeln('Channel 2,${_formatValue(stats['min_value2'])},${_formatValue(stats['max_value2'])},${_formatValue(stats['avg_value2'])}');
+    buffer.writeln('Channel 3,${_formatValue(stats['min_value3'])},${_formatValue(stats['max_value3'])},${_formatValue(stats['avg_value3'])}');
+    buffer.writeln('Channel 4,${_formatValue(stats['min_value4'])},${_formatValue(stats['max_value4'])},${_formatValue(stats['avg_value4'])}');
+    buffer.writeln('');
+
+    buffer.writeln('Index,Timestamp,Time (ms),Value 1,Value 2,Value 3,Value 4');
+    // Data rows
+    final startMs = dataPoints.isNotEmpty
+        ? dataPoints.first.timestamp.millisecondsSinceEpoch
+        : 0;
+
+    for (int i = 0; i < dataPoints.length; i++) {
+      final point = dataPoints[i];
+      final relativeMs = point.timestamp.millisecondsSinceEpoch - startMs;
+      final timeStr = DateFormat('HH:mm:ss.SSS').format(point.timestamp);
+
+      buffer.writeln(
+        '${i + 1},'
+        '$timeStr,'
+        '$relativeMs,'
+        '${point.value1.toStringAsFixed(3)},'
+        '${point.value2.toStringAsFixed(3)},'
+        '${point.value3.toStringAsFixed(3)},'
+        '${point.value4.toStringAsFixed(3)},'
+        // '${_formatProcessedValue(point.processedValue1)},'
+        // '${_formatProcessedValue(point.processedValue2)},'
+        // '${_formatProcessedValue(point.processedValue3)},'
+        // '${_formatProcessedValue(point.processedValue4)}',
+      );
+    }
+
+    await file.writeAsString(buffer.toString());
+    return file;
+  }
+
+  /// Format a stat value for CSV
+  static String _formatValue(dynamic value) {
+    if (value == null) return "N/A";
+    if (value is num) return value.toStringAsFixed(3);
+    return value.toString();
+  }
+
+  /// Format processed value (can be null)
+  // static String _formatProcessedValue(double? value) {
+  //   if (value == null) return "";
+  //   return value.toStringAsFixed(3);
+  // }
+
+  /// Format duration nicely
+  static String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    if (hours > 0) {
+      return '${hours}h ${minutes}m ${seconds}s';
+    } else if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    } else {
+      return '${seconds}s';
+    }
+  }
+}
+this is csv_exporter 
+
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
+class DataPoint {
+  final int? id;
+  final double value1;
+  final double value2;
+  final double value3;
+  final double value4;
+  final DateTime timestamp;
+  final double? processedValue1;
+  final double? processedValue2;
+  final double? processedValue3;
+  final double? processedValue4;
+
+  DataPoint({
+    this.id,
+    required this.value1,
+    required this.value2,
+    required this.value3,
+    required this.value4,
+    required this.timestamp,
+    this.processedValue1,
+    this.processedValue2,
+    this.processedValue3,
+    this.processedValue4,
+  });
+
+  Map<String, dynamic> toMap(int sessionId) {
+    return {
+      'session_id': sessionId,
+      'value1': value1,
+      'value2': value2,
+      'value3': value3,
+      'value4': value4,
+      'processed_value1': processedValue1,
+      'processed_value2': processedValue2,
+      'processed_value3': processedValue3,
+      'processed_value4': processedValue4,
+      'timestamp': timestamp.millisecondsSinceEpoch,
+    };
+  }
+
+  factory DataPoint.fromMap(Map<String, dynamic> map) {
+    return DataPoint(
+      id: map['id'] as int?,
+      value1: (map['value1'] as num?)?.toDouble() ?? 0.0,
+      value2: (map['value2'] as num?)?.toDouble() ?? 0.0,
+      value3: (map['value3'] as num?)?.toDouble() ?? 0.0,
+      value4: (map['value4'] as num?)?.toDouble() ?? 0.0,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp'] as int),
+      processedValue1: (map['processed_value1'] as num?)?.toDouble(),
+      processedValue2: (map['processed_value2'] as num?)?.toDouble(),
+      processedValue3: (map['processed_value3'] as num?)?.toDouble(),
+      processedValue4: (map['processed_value4'] as num?)?.toDouble(),
+    );
+  }
+}
+
+class RecordingSession {
+  final int? id;
+  final String deviceName;
+  final DateTime startTime;
+  final Duration? duration;
+  final int dataCount;
+  final String? notes;
+
+  RecordingSession({
+    this.id,
+    required this.deviceName,
+    required this.startTime,
+    this.duration,
+    this.dataCount = 0,
+    this.notes,
+  });
+
+  factory RecordingSession.fromMap(Map<String, dynamic> map) {
+    return RecordingSession(
+      id: map['id'] as int?,
+      deviceName: map['device_name'] as String,
+      startTime: DateTime.fromMillisecondsSinceEpoch(map['start_time'] as int),
+      duration: map['duration_ms'] != null
+          ? Duration(milliseconds: map['duration_ms'] as int)
+          : null,
+      dataCount: (map['data_count'] as int?) ?? 0,
+      notes: map['notes'] as String?,
+    );
+  }
+}
+
+class DatabaseHelper {
+  static final DatabaseHelper instance = DatabaseHelper._init();
+  static Database? _database;
+
+  DatabaseHelper._init();
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDB('exg_recordings.db');
+    return _database!;
+  }
+
+  Future<Database> _initDB(String filePath) async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, filePath);
+
+    return await openDatabase(
+      path,
+      version: 4, 
+      onCreate: _createDB,
+      onUpgrade: _onUpgrade,
+      onConfigure: _onConfigure,
+    );
+  }
+
+  Future<void> _onConfigure(Database db) async {
+    await db.execute('PRAGMA foreign_keys = ON');
+  }
+
+  Future<void> _createDB(Database db, int version) async {
+    print('Creating database with version $version');
+    
+    // Sessions table
+    await db.execute('''
+      CREATE TABLE sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        device_name TEXT NOT NULL,
+        start_time INTEGER NOT NULL,
+        duration_ms INTEGER,
+        data_count INTEGER DEFAULT 0,
+        notes TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE data_points (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id INTEGER NOT NULL,
+        value1 REAL NOT NULL,
+        value2 REAL NOT NULL,
+        value3 REAL NOT NULL DEFAULT 0,
+        value4 REAL NOT NULL DEFAULT 0,
+        processed_value1 REAL,
+        processed_value2 REAL,
+        processed_value3 REAL,
+        processed_value4 REAL,
+        timestamp INTEGER NOT NULL,
+        FOREIGN KEY (session_id) REFERENCES sessions (id) ON DELETE CASCADE
+      )
+    ''');
+
+    // Index for faster queries
+    await db.execute(
+        'CREATE INDEX idx_data_points_session ON data_points (session_id)');
+    
+    print('Database tables created successfully with 4-channel support');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    print('Upgrading database from version $oldVersion to $newVersion');
+    
+    if (oldVersion < 4) {
+      // Check if columns exist before adding
+      final tableInfo = await db.rawQuery('PRAGMA table_info(data_points)');
+      final existingColumns = tableInfo.map((c) => c['name'] as String).toSet();
+      
+      if (!existingColumns.contains('value3')) {
+        await db.execute('ALTER TABLE data_points ADD COLUMN value3 REAL NOT NULL DEFAULT 0');
+        print('Added value3 column');
+      }
+      if (!existingColumns.contains('value4')) {
+        await db.execute('ALTER TABLE data_points ADD COLUMN value4 REAL NOT NULL DEFAULT 0');
+        print('Added value4 column');
+      }
+      if (!existingColumns.contains('processed_value3')) {
+        await db.execute('ALTER TABLE data_points ADD COLUMN processed_value3 REAL');
+        print('Added processed_value3 column');
+      }
+      if (!existingColumns.contains('processed_value4')) {
+        await db.execute('ALTER TABLE data_points ADD COLUMN processed_value4 REAL');
+        print('Added processed_value4 column');
+      }
+    }
+  }
+
+  Future<int> createSession(String deviceName) async {
+    final db = await database;
+    final id = await db.insert('sessions', {
+      'device_name': deviceName,
+      'start_time': DateTime.now().millisecondsSinceEpoch,
+      'data_count': 0,
+    });
+    print('Created session with id: $id');
+    return id;
+  }
+
+  Future<void> updateSession({
+    required int sessionId,
+    Duration? duration,
+    int? dataCount,
+    String? notes,
+  }) async {
+    final db = await database;
+    final Map<String, dynamic> updates = {};
+
+    if (duration != null) updates['duration_ms'] = duration.inMilliseconds;
+    if (dataCount != null) updates['data_count'] = dataCount;
+    if (notes != null) updates['notes'] = notes;
+
+    if (updates.isNotEmpty) {
+      await db.update(
+        'sessions',
+        updates,
+        where: 'id = ?',
+        whereArgs: [sessionId],
+      );
+    }
+  }
+
+  Future<List<RecordingSession>> getAllSessions() async {
+    final db = await database;
+    
+    final result = await db.rawQuery('''
+      SELECT 
+        s.id,
+        s.device_name,
+        s.start_time,
+        s.duration_ms,
+        s.notes,
+        COALESCE(s.data_count, COUNT(d.id)) as data_count
+      FROM sessions s
+      LEFT JOIN data_points d ON s.id = d.session_id
+      GROUP BY s.id
+      ORDER BY s.start_time DESC
+    ''');
+
+    return result.map((map) => RecordingSession.fromMap(map)).toList();
+  }
+
+  Future<RecordingSession?> getSession(int sessionId) async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT 
+        s.id,
+        s.device_name,
+        s.start_time,
+        s.duration_ms,
+        s.notes,
+        COALESCE(s.data_count, COUNT(d.id)) as data_count
+      FROM sessions s
+      LEFT JOIN data_points d ON s.id = d.session_id
+      WHERE s.id = ?
+      GROUP BY s.id
+    ''', [sessionId]);
+
+    if (result.isEmpty) return null;
+    return RecordingSession.fromMap(result.first);
+  }
+
+  Future<void> saveDataPoints(int sessionId, List<DataPoint> dataPoints) async {
+    if (dataPoints.isEmpty) return;
+
+    final db = await database;
+    final batch = db.batch();
+
+    for (var point in dataPoints) {
+      batch.insert('data_points', point.toMap(sessionId));
+    }
+
+    await batch.commit(noResult: true);
+
+    // Update session with duration and data count
+    final firstTime = dataPoints.first.timestamp;
+    final lastTime = dataPoints.last.timestamp;
+    final duration = lastTime.difference(firstTime);
+
+    // Get total count for this session
+    final countResult = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM data_points WHERE session_id = ?',
+      [sessionId],
+    );
+    final totalCount = countResult.first['count'] as int;
+
+    await updateSession(
+      sessionId: sessionId,
+      duration: duration,
+      dataCount: totalCount,
+    );
+    
+    print('Saved ${dataPoints.length} data points to session $sessionId');
+  }
+
+  Future<List<DataPoint>> getSessionDataPoints(int sessionId) async {
+    final db = await database;
+    final result = await db.query(
+      'data_points',
+      where: 'session_id = ?',
+      whereArgs: [sessionId],
+      orderBy: 'timestamp ASC',
+    );
+
+    return result.map((map) => DataPoint.fromMap(map)).toList();
+  }
+
+  Future<Map<String, dynamic>> getSessionStats(int sessionId) async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT 
+        COUNT(*) as count,
+        MIN(value1) as min_value1,
+        MAX(value1) as max_value1,
+        AVG(value1) as avg_value1,
+        MIN(value2) as min_value2,
+        MAX(value2) as max_value2,
+        AVG(value2) as avg_value2,
+        MIN(value3) as min_value3,
+        MAX(value3) as max_value3,
+        AVG(value3) as avg_value3,
+        MIN(value4) as min_value4,
+        MAX(value4) as max_value4,
+        AVG(value4) as avg_value4
+      FROM data_points
+      WHERE session_id = ?
+    ''', [sessionId]);
+
+    if (result.isEmpty) {
+      return {
+        'count': 0,
+        'min_value1': 0.0,
+        'max_value1': 0.0,
+        'avg_value1': 0.0,
+        'min_value2': 0.0,
+        'max_value2': 0.0,
+        'avg_value2': 0.0,
+        'min_value3': 0.0,
+        'max_value3': 0.0,
+        'avg_value3': 0.0,
+        'min_value4': 0.0,
+        'max_value4': 0.0,
+        'avg_value4': 0.0,
+      };
+    }
+    return result.first;
+  }
+
+  Future<void> deleteSession(int sessionId) async {
+    final db = await database;
+    await db.delete(
+      'data_points',
+      where: 'session_id = ?',
+      whereArgs: [sessionId],
+    );
+    await db.delete(
+      'sessions',
+      where: 'id = ?',
+      whereArgs: [sessionId],
+    );
+  }
+
+  Future<void> resetDatabase() async {
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
+    
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'exg_recordings.db');
+    await deleteDatabase(path);
+    print('Database has been reset');
+    
+    _database = await _initDB('exg_recordings.db');
+  }
+
+  Future<void> debugPrintSchema() async {
+    final db = await database;
+    
+    print('=== DATABASE SCHEMA ===');
+    
+    final sessions = await db.rawQuery('PRAGMA table_info(sessions)');
+    print('Sessions columns:');
+    for (var col in sessions) {
+      print('  - ${col['name']} (${col['type']})');
+    }
+    
+    final dataPoints = await db.rawQuery('PRAGMA table_info(data_points)');
+    print('Data Points columns:');
+    for (var col in dataPoints) {
+      print('  - ${col['name']} (${col['type']})');
+    }
+    
+    print('=======================');
+  }
+
+  Future<void> close() async {
+    final db = await database;
+    await db.close();
+    _database = null;
+  }
+}
+
+this is the code for the db.dart
+
+here i wanted to update the code in the graph such that before in the char id :abcdef01-1234-1234-1234-abcdefabcdef
+
+and one more char id u have to add here as char id :-abcdef02-1234-1234-1234-abcdefabcdef
+here also same we will get the 4 values same as above so keep this points also so then in the graph i can see the 8 points so keep the UI functionality all same as previous 
+
+
+
+
+--->---->----->------>-------->--------->------------->---------------->-------------->
+hey along with that can u update the channel ch1 as EEG(left), ch2 as EEG(Right), similarly PAL1.5, PAR1.5, PAR3, PBL1.5, PBR1.5 and NoN
