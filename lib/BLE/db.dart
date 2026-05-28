@@ -3,14 +3,14 @@
 
 // class DataPoint {
 //   final int? id;
-//   final double value1;
-//   final double value2;
-//   final double value3;
-//   final double value4;
-//   final double value5;
-//   final double value6;
-//   final double value7;
-//   final double value8;
+//   final double value1; // EEG(Left)
+//   final double value2; // EEG(Right)
+//   final double value3; // PAL1.5
+//   final double value4; // PAR1.5
+//   final double value5; // PAR3
+//   final double value6; // PBL1.5
+//   final double value7; // PBR1.5
+//   final double value8; // NoN
 //   final DateTime timestamp;
 //   final double? processedValue1;
 //   final double? processedValue2;
@@ -21,7 +21,7 @@
 //   final double? processedValue7;
 //   final double? processedValue8;
 
-//   DataPoint({
+//   DataPoint({ //why here consturctor is used 
 //     this.id,
 //     required this.value1,
 //     required this.value2,
@@ -42,7 +42,7 @@
 //     this.processedValue8,
 //   });
 
-//   Map<String, dynamic> toMap(int sessionId) {
+//   Map<String, dynamic> toMap(int sessionId) { // why here mapp used and what is session id 
 //     return {
 //       'session_id': sessionId,
 //       'value1': value1,
@@ -152,7 +152,6 @@
 //   Future<void> _createDB(Database db, int version) async {
 //     print('Creating database with version $version');
 
-//     // Sessions table
 //     await db.execute('''
 //       CREATE TABLE sessions (
 //         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -189,7 +188,6 @@
 //       )
 //     ''');
 
-//     // Index for faster queries
 //     await db.execute(
 //         'CREATE INDEX idx_data_points_session ON data_points (session_id)');
 
@@ -230,22 +228,22 @@
 //       if (!existingColumns.contains('value5')) {
 //         await db.execute(
 //             'ALTER TABLE data_points ADD COLUMN value5 REAL NOT NULL DEFAULT 0');
-//         print('Added value5 column');
+//         print('Added value5 column (PAR3)');
 //       }
 //       if (!existingColumns.contains('value6')) {
 //         await db.execute(
 //             'ALTER TABLE data_points ADD COLUMN value6 REAL NOT NULL DEFAULT 0');
-//         print('Added value6 column');
+//         print('Added value6 column (PBL1.5)');
 //       }
 //       if (!existingColumns.contains('value7')) {
 //         await db.execute(
 //             'ALTER TABLE data_points ADD COLUMN value7 REAL NOT NULL DEFAULT 0');
-//         print('Added value7 column');
+//         print('Added value7 column (PBR1.5)');
 //       }
 //       if (!existingColumns.contains('value8')) {
 //         await db.execute(
 //             'ALTER TABLE data_points ADD COLUMN value8 REAL NOT NULL DEFAULT 0');
-//         print('Added value8 column');
+//         print('Added value8 column (NoN)');
 //       }
 //       if (!existingColumns.contains('processed_value5')) {
 //         await db.execute(
@@ -356,12 +354,10 @@
 
 //     await batch.commit(noResult: true);
 
-//     // Update session with duration and data count
 //     final firstTime = dataPoints.first.timestamp;
 //     final lastTime = dataPoints.last.timestamp;
 //     final duration = lastTime.difference(firstTime);
 
-//     // Get total count for this session
 //     final countResult = await db.rawQuery(
 //       'SELECT COUNT(*) as count FROM data_points WHERE session_id = ?',
 //       [sessionId],
@@ -425,30 +421,14 @@
 //     if (result.isEmpty) {
 //       return {
 //         'count': 0,
-//         'min_value1': 0.0,
-//         'max_value1': 0.0,
-//         'avg_value1': 0.0,
-//         'min_value2': 0.0,
-//         'max_value2': 0.0,
-//         'avg_value2': 0.0,
-//         'min_value3': 0.0,
-//         'max_value3': 0.0,
-//         'avg_value3': 0.0,
-//         'min_value4': 0.0,
-//         'max_value4': 0.0,
-//         'avg_value4': 0.0,
-//         'min_value5': 0.0,
-//         'max_value5': 0.0,
-//         'avg_value5': 0.0,
-//         'min_value6': 0.0,
-//         'max_value6': 0.0,
-//         'avg_value6': 0.0,
-//         'min_value7': 0.0,
-//         'max_value7': 0.0,
-//         'avg_value7': 0.0,
-//         'min_value8': 0.0,
-//         'max_value8': 0.0,
-//         'avg_value8': 0.0,
+//         'min_value1': 0.0, 'max_value1': 0.0, 'avg_value1': 0.0,
+//         'min_value2': 0.0, 'max_value2': 0.0, 'avg_value2': 0.0,
+//         'min_value3': 0.0, 'max_value3': 0.0, 'avg_value3': 0.0,
+//         'min_value4': 0.0, 'max_value4': 0.0, 'avg_value4': 0.0,
+//         'min_value5': 0.0, 'max_value5': 0.0, 'avg_value5': 0.0,
+//         'min_value6': 0.0, 'max_value6': 0.0, 'avg_value6': 0.0,
+//         'min_value7': 0.0, 'max_value7': 0.0, 'avg_value7': 0.0,
+//         'min_value8': 0.0, 'max_value8': 0.0, 'avg_value8': 0.0,
 //       };
 //     }
 //     return result.first;
@@ -510,6 +490,7 @@
 // }
 
 
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -523,6 +504,7 @@ class DataPoint {
   final double value6; // PBL1.5
   final double value7; // PBR1.5
   final double value8; // NoN
+  final double? pal3;  
   final DateTime timestamp;
   final double? processedValue1;
   final double? processedValue2;
@@ -533,7 +515,7 @@ class DataPoint {
   final double? processedValue7;
   final double? processedValue8;
 
-  DataPoint({ //why here consturctor is used 
+  DataPoint({
     this.id,
     required this.value1,
     required this.value2,
@@ -543,6 +525,7 @@ class DataPoint {
     this.value6 = 0.0,
     this.value7 = 0.0,
     this.value8 = 0.0,
+    this.pal3, // NEW: PAL3 field
     required this.timestamp,
     this.processedValue1,
     this.processedValue2,
@@ -554,7 +537,7 @@ class DataPoint {
     this.processedValue8,
   });
 
-  Map<String, dynamic> toMap(int sessionId) { // why here mapp used and what is session id 
+  Map<String, dynamic> toMap(int sessionId) {
     return {
       'session_id': sessionId,
       'value1': value1,
@@ -565,6 +548,7 @@ class DataPoint {
       'value6': value6,
       'value7': value7,
       'value8': value8,
+      'pal3': pal3, // NEW: Save PAL3 to database
       'processed_value1': processedValue1,
       'processed_value2': processedValue2,
       'processed_value3': processedValue3,
@@ -588,6 +572,7 @@ class DataPoint {
       value6: (map['value6'] as num?)?.toDouble() ?? 0.0,
       value7: (map['value7'] as num?)?.toDouble() ?? 0.0,
       value8: (map['value8'] as num?)?.toDouble() ?? 0.0,
+      pal3: (map['pal3'] as num?)?.toDouble(),  
       timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp'] as int),
       processedValue1: (map['processed_value1'] as num?)?.toDouble(),
       processedValue2: (map['processed_value2'] as num?)?.toDouble(),
@@ -650,7 +635,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,  
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
       onConfigure: _onConfigure,
@@ -687,6 +672,7 @@ class DatabaseHelper {
         value6 REAL NOT NULL DEFAULT 0,
         value7 REAL NOT NULL DEFAULT 0,
         value8 REAL NOT NULL DEFAULT 0,
+        pal3 REAL,
         processed_value1 REAL,
         processed_value2 REAL,
         processed_value3 REAL,
@@ -703,7 +689,7 @@ class DatabaseHelper {
     await db.execute(
         'CREATE INDEX idx_data_points_session ON data_points (session_id)');
 
-    print('Database tables created successfully with 8-channel support');
+    print('Database tables created successfully with 8-channel + PAL3 support');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -776,6 +762,27 @@ class DatabaseHelper {
         await db.execute(
             'ALTER TABLE data_points ADD COLUMN processed_value8 REAL');
         print('Added processed_value8 column');
+      }
+    }
+
+    // NEW: Version 6 upgrade - Add PAL3 column
+    if (oldVersion < 6) {
+      final tableInfo = await db.rawQuery('PRAGMA table_info(data_points)');
+      final existingColumns =
+          tableInfo.map((c) => c['name'] as String).toSet();
+
+      if (!existingColumns.contains('pal3')) {
+        await db.execute(
+            'ALTER TABLE data_points ADD COLUMN pal3 REAL');
+        print('Added pal3 column (calculated average)');
+        
+        // Optionally, calculate PAL3 for existing records
+        await db.execute('''
+          UPDATE data_points 
+          SET pal3 = (value3 + value4 + value6 + value7) / 4.0
+          WHERE pal3 IS NULL
+        ''');
+        print('Calculated PAL3 for existing records');
       }
     }
   }
@@ -925,7 +932,10 @@ class DatabaseHelper {
         AVG(value7) as avg_value7,
         MIN(value8) as min_value8,
         MAX(value8) as max_value8,
-        AVG(value8) as avg_value8
+        AVG(value8) as avg_value8,
+        MIN(pal3) as min_pal3,
+        MAX(pal3) as max_pal3,
+        AVG(pal3) as avg_pal3
       FROM data_points
       WHERE session_id = ?
     ''', [sessionId]);
@@ -941,6 +951,7 @@ class DatabaseHelper {
         'min_value6': 0.0, 'max_value6': 0.0, 'avg_value6': 0.0,
         'min_value7': 0.0, 'max_value7': 0.0, 'avg_value7': 0.0,
         'min_value8': 0.0, 'max_value8': 0.0, 'avg_value8': 0.0,
+        'min_pal3': 0.0, 'max_pal3': 0.0, 'avg_pal3': 0.0, // NEW
       };
     }
     return result.first;

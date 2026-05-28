@@ -8,6 +8,28 @@
 // import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 // import 'package:intl/intl.dart';
 
+// // Channel label constants
+// class ChannelLabels {
+//   static const String ch1 = "EEG(Left)";
+//   static const String ch2 = "EEG(Right)";
+//   static const String ch3 = "PAL1.5";
+//   static const String ch4 = "PAR1.5";
+//   static const String ch5 = "PAR3";
+//   static const String ch6 = "PBL1.5";
+//   static const String ch7 = "PBR1.5";
+//   static const String ch8 = "NoN";
+
+//   // Short labels for compact UI elements
+//   static const String ch1Short = "EEG(L)";
+//   static const String ch2Short = "EEG(R)";
+//   static const String ch3Short = "PAL1.5";
+//   static const String ch4Short = "PAR1.5";
+//   static const String ch5Short = "PAR3";
+//   static const String ch6Short = "PBL1.5";
+//   static const String ch7Short = "PBR1.5";
+//   static const String ch8Short = "NoN";
+// }
+
 // // ✅ Data class to hold 8 values (4 from each characteristic)
 // class OctoChannelData {
 //   final double value1;
@@ -18,6 +40,7 @@
 //   final double value6;
 //   final double value7;
 //   final double value8;
+//   final double pal3; // NEW: Average of PAL1.5, PAR1.5, PBL1.5, PBR1.5
 //   final DateTime timestamp;
 
 //   OctoChannelData({
@@ -29,6 +52,7 @@
 //     required this.value6,
 //     required this.value7,
 //     required this.value8,
+//     required this.pal3,
 //     required this.timestamp,
 //   });
 // }
@@ -81,7 +105,7 @@
 //   bool _isConnected = true;
 //   String _errorMessage = "";
 
-//   // ✅ Latest parsed values from each characteristic
+//   // Latest parsed values from each characteristic
 //   double _latestVal1 = 0;
 //   double _latestVal2 = 0;
 //   double _latestVal3 = 0;
@@ -166,12 +190,14 @@
 //             if (characteristic.uuid.toString().toLowerCase() ==
 //                 CHARACTERISTIC_UUID_1.toLowerCase()) {
 //               targetChar1 = characteristic;
-//               print("    ✅ Found target characteristic 1!");
+//               print(
+//                   "    ✅ Found Char 1 (${ChannelLabels.ch1}, ${ChannelLabels.ch2}, ${ChannelLabels.ch3}, ${ChannelLabels.ch4})!");
 //             }
 //             if (characteristic.uuid.toString().toLowerCase() ==
 //                 CHARACTERISTIC_UUID_2.toLowerCase()) {
 //               targetChar2 = characteristic;
-//               print("    ✅ Found target characteristic 2!");
+//               print(
+//                   "    ✅ Found Char 2 (${ChannelLabels.ch5}, ${ChannelLabels.ch6}, ${ChannelLabels.ch7}, ${ChannelLabels.ch8})!");
 //             }
 //           }
 //         }
@@ -256,7 +282,8 @@
 //           _characteristic1!.lastValueStream.listen((value) {
 //         _updateValue1(value);
 //       });
-//       _showSnackBar("✅ Subscribed to characteristic 1 notifications");
+//       _showSnackBar(
+//           "✅ Subscribed to Char 1 (${ChannelLabels.ch1Short}-${ChannelLabels.ch4Short})");
 //       print("✅ Subscribed to characteristic 1 notifications successfully");
 //     } catch (e) {
 //       _showSnackBar("Error subscribing to char 1: $e");
@@ -272,7 +299,8 @@
 //           _characteristic2!.lastValueStream.listen((value) {
 //         _updateValue2(value);
 //       });
-//       _showSnackBar("✅ Subscribed to characteristic 2 notifications");
+//       _showSnackBar(
+//           "✅ Subscribed to Char 2 (${ChannelLabels.ch5Short}-${ChannelLabels.ch8Short})");
 //       print("✅ Subscribed to characteristic 2 notifications successfully");
 //     } catch (e) {
 //       _showSnackBar("Error subscribing to char 2: $e");
@@ -430,9 +458,9 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor: MainColors.white,
+//       backgroundColor: MainColors.white
 //       appBar: AppBar(
-//         backgroundColor: MainColors.white,
+//         backgroundColor: MainColors.white
 //         title: Text(
 //           widget.device.platformName.isNotEmpty
 //               ? widget.device.platformName
@@ -529,7 +557,7 @@
 //               const SizedBox(width: 8),
 //               Expanded(
 //                 child: Text(
-//                   "Char 1 (CH 1-4): ${_char1Found ? 'Connected' : 'Not Found'}",
+//                   "Char 1 (${ChannelLabels.ch1Short}, ${ChannelLabels.ch2Short}, ${ChannelLabels.ch3Short}, ${ChannelLabels.ch4Short}): ${_char1Found ? 'Connected' : 'Not Found'}",
 //                   style: TextStyle(
 //                     fontSize: 12,
 //                     color: _char1Found ? Colors.green : Colors.red,
@@ -550,7 +578,7 @@
 //               const SizedBox(width: 8),
 //               Expanded(
 //                 child: Text(
-//                   "Char 2 (CH 5-8): ${_char2Found ? 'Connected' : 'Not Found'}",
+//                   "Char 2 (${ChannelLabels.ch5Short}, ${ChannelLabels.ch6Short}, ${ChannelLabels.ch7Short}, ${ChannelLabels.ch8Short}): ${_char2Found ? 'Connected' : 'Not Found'}",
 //                   style: TextStyle(
 //                     fontSize: 12,
 //                     color: _char2Found ? Colors.green : Colors.red,
@@ -603,7 +631,7 @@
 //         label: Text("OPEN REAL-TIME GRAPH (8 CH)",
 //             style: AppTextStyles.bold.copyWith(fontSize: 16)),
 //         style: ElevatedButton.styleFrom(
-//           foregroundColor: Colors.white,
+//           foregroundColor: MainColors.white,
 //           backgroundColor: Colors.blueGrey[800],
 //           padding: const EdgeInsets.symmetric(vertical: 18),
 //           shape:
@@ -640,8 +668,8 @@
 //             ? Colors.green.withOpacity(0.1)
 //             : Colors.red.withOpacity(0.1),
 //         borderRadius: BorderRadius.circular(12),
-//         border:
-//             Border.all(color: _isConnected ? Colors.green : Colors.red, width: 1),
+//         border: Border.all(
+//             color: _isConnected ? Colors.green : Colors.red, width: 1),
 //       ),
 //       child: Row(
 //         children: [
@@ -689,80 +717,90 @@
 //           Text(
 //             "LIVE VALUES",
 //             style: AppTextStyles.regular
-//                 .copyWith(color: Colors.white.withOpacity(0.8)),
+//                 .copyWith(color: MainColors.white.withOpacity(0.8)),
 //           ),
 //           const SizedBox(height: 8),
 //           // Characteristic 1 label
 //           Container(
 //             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
 //             decoration: BoxDecoration(
-//               color: Colors.white.withOpacity(0.1),
+//               color: MainColors.white.withOpacity(0.1),
 //               borderRadius: BorderRadius.circular(8),
 //             ),
-//             child: Text("Characteristic 1",
+//             child: Text(
+//                 "Characteristic 1 — EEG & PA Channels",
 //                 style: TextStyle(
-//                     color: Colors.white.withOpacity(0.6), fontSize: 11)),
+//                     color: MainColors.white.withOpacity(0.6), fontSize: 11)),
 //           ),
 //           const SizedBox(height: 12),
 //           Row(
 //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 //             children: [
-//               _buildChannelDisplay("CH 1", _displayValue1, Colors.blue),
+//               _buildChannelDisplay(
+//                   ChannelLabels.ch1, _displayValue1, Colors.blue),
 //               Container(
 //                   height: 60,
 //                   width: 1,
-//                   color: Colors.white.withOpacity(0.3)),
-//               _buildChannelDisplay("CH 2", _displayValue2, Colors.orange),
+//                   color: MainColors.white.withOpacity(0.3)),
+//               _buildChannelDisplay(
+//                   ChannelLabels.ch2, _displayValue2, Colors.orange),
 //             ],
 //           ),
 //           const SizedBox(height: 12),
 //           Row(
 //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 //             children: [
-//               _buildChannelDisplay("CH 3", _displayValue3, Colors.green),
+//               _buildChannelDisplay(
+//                   ChannelLabels.ch3, _displayValue3, Colors.green),
 //               Container(
 //                   height: 60,
 //                   width: 1,
-//                   color: Colors.white.withOpacity(0.3)),
-//               _buildChannelDisplay("CH 4", _displayValue4, Colors.purple),
+//                   color: MainColors.white.withOpacity(0.3)),
+//               _buildChannelDisplay(
+//                   ChannelLabels.ch4, _displayValue4, Colors.purple),
 //             ],
 //           ),
 //           const SizedBox(height: 16),
-//           Divider(color: Colors.white.withOpacity(0.3)),
+//           Divider(color: MainColors.white.withOpacity(0.3)),
 //           const SizedBox(height: 8),
 //           // Characteristic 2 label
 //           Container(
 //             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
 //             decoration: BoxDecoration(
-//               color: Colors.white.withOpacity(0.1),
+//               color: MainColors.white.withOpacity(0.1),
 //               borderRadius: BorderRadius.circular(8),
 //             ),
-//             child: Text("Characteristic 2",
+//             child: Text(
+//                 "Characteristic 2 — PA, PB & NoN Channels",
 //                 style: TextStyle(
-//                     color: Colors.white.withOpacity(0.6), fontSize: 11)),
+//                     color: MainColors.white.withOpacity(0.6), fontSize: 11)),
 //           ),
 //           const SizedBox(height: 12),
 //           Row(
 //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 //             children: [
-//               _buildChannelDisplay("CH 5", _displayValue5, Colors.cyan),
+//               _buildChannelDisplay(
+//                   ChannelLabels.ch5, _displayValue5, Colors.cyan),
 //               Container(
 //                   height: 60,
 //                   width: 1,
-//                   color: Colors.white.withOpacity(0.3)),
-//               _buildChannelDisplay("CH 6", _displayValue6, Colors.red),
+//                   color: MainColors.white.withOpacity(0.3)),
+//               _buildChannelDisplay(
+//                   ChannelLabels.ch6, _displayValue6, Colors.red),
 //             ],
 //           ),
 //           const SizedBox(height: 12),
 //           Row(
 //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 //             children: [
-//               _buildChannelDisplay("CH 7", _displayValue7, Colors.teal),
+//               _buildChannelDisplay(
+//                   ChannelLabels.ch7, _displayValue7, Colors.teal),
 //               Container(
 //                   height: 60,
 //                   width: 1,
-//                   color: Colors.white.withOpacity(0.3)),
-//               _buildChannelDisplay("CH 8", _displayValue8, Colors.pink),
+//                   color: MainColors.white.withOpacity(0.3)),
+//               _buildChannelDisplay(
+//                   ChannelLabels.ch8, _displayValue8, Colors.pink),
 //             ],
 //           ),
 //         ],
@@ -775,15 +813,18 @@
 //       child: Column(
 //         children: [
 //           Container(
-//             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+//             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
 //             decoration: BoxDecoration(
 //               color: color.withOpacity(0.3),
 //               borderRadius: BorderRadius.circular(8),
 //             ),
-//             child: Text(
-//               label,
-//               style: AppTextStyles.bold
-//                   .copyWith(color: color.withOpacity(0.9), fontSize: 12),
+//             child: FittedBox(
+//               fit: BoxFit.scaleDown,
+//               child: Text(
+//                 label,
+//                 style: AppTextStyles.bold
+//                     .copyWith(color: color.withOpacity(0.9), fontSize: 11),
+//               ),
 //             ),
 //           ),
 //           const SizedBox(height: 8),
@@ -811,22 +852,24 @@
 //           children: [
 //             Text("Raw Data", style: AppTextStyles.bold),
 //             const SizedBox(height: 12),
-//             Text("Characteristic 1",
+//             Text(
+//                 "Characteristic 1 (${ChannelLabels.ch1Short}, ${ChannelLabels.ch2Short}, ${ChannelLabels.ch3Short}, ${ChannelLabels.ch4Short})",
 //                 style: AppTextStyles.bold
 //                     .copyWith(fontSize: 12, color: Colors.grey[500])),
 //             const SizedBox(height: 4),
-//             _rawDataRow("String",
-//                 _rawString1.isEmpty ? "Waiting..." : _rawString1),
+//             _rawDataRow(
+//                 "String", _rawString1.isEmpty ? "Waiting..." : _rawString1),
 //             const SizedBox(height: 4),
 //             _rawDataRow(
 //                 "Bytes", _rawBytes1.isEmpty ? "[]" : _rawBytes1.toString()),
 //             const SizedBox(height: 12),
-//             Text("Characteristic 2",
+//             Text(
+//                 "Characteristic 2 (${ChannelLabels.ch5Short}, ${ChannelLabels.ch6Short}, ${ChannelLabels.ch7Short}, ${ChannelLabels.ch8Short})",
 //                 style: AppTextStyles.bold
 //                     .copyWith(fontSize: 12, color: Colors.grey[500])),
 //             const SizedBox(height: 4),
-//             _rawDataRow("String",
-//                 _rawString2.isEmpty ? "Waiting..." : _rawString2),
+//             _rawDataRow(
+//                 "String", _rawString2.isEmpty ? "Waiting..." : _rawString2),
 //             const SizedBox(height: 4),
 //             _rawDataRow(
 //                 "Bytes", _rawBytes2.isEmpty ? "[]" : _rawBytes2.toString()),
@@ -860,7 +903,8 @@
 //       children: [
 //         Expanded(
 //           child: ElevatedButton(
-//             onPressed: _isConnected && (_characteristic1 != null || _characteristic2 != null)
+//             onPressed: _isConnected &&
+//                     (_characteristic1 != null || _characteristic2 != null)
 //                 ? () {
 //                     _readValue1();
 //                     _readValue2();
@@ -869,7 +913,7 @@
 //             child: const Text("Read Values"),
 //             style: ElevatedButton.styleFrom(
 //               backgroundColor: MainColors.primaryColor,
-//               foregroundColor: Colors.white,
+//               foregroundColor: MainColors.white,
 //               padding: const EdgeInsets.symmetric(vertical: 16),
 //               shape: RoundedRectangleBorder(
 //                   borderRadius: BorderRadius.circular(12)),
@@ -1164,7 +1208,7 @@
 //             backgroundColor: Colors.green,
 //             action: SnackBarAction(
 //               label: "VIEW",
-//               textColor: Colors.white,
+//               textColor: MainColors.white,
 //               onPressed: () {
 //                 Navigator.push(
 //                   context,
@@ -1198,7 +1242,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor: MainColors.white,
+//       backgroundColor: MainColors.white
 //       appBar: AppBar(
 //         title: Column(
 //           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1209,7 +1253,7 @@
 //                     .copyWith(fontSize: 12, color: Colors.grey[600])),
 //           ],
 //         ),
-//         backgroundColor: MainColors.white,
+//         backgroundColor: MainColors.white
 //         elevation: 1,
 //         leading: IconButton(
 //           icon: const Icon(Icons.arrow_back_ios, color: MainColors.black),
@@ -1218,8 +1262,10 @@
 //         actions: [
 //           PopupMenuButton<String>(
 //             onSelected: (value) {
-//               if (value == 'restart') _showRestartConfirmation();
-//               else if (value == 'save') _saveChartData();
+//               if (value == 'restart')
+//                 _showRestartConfirmation();
+//               else if (value == 'save')
+//                 _saveChartData();
 //               else if (value == 'view_saved') {
 //                 Navigator.push(
 //                     context,
@@ -1320,7 +1366,7 @@
 //                                       label: const Text("GO LIVE"),
 //                                       style: ElevatedButton.styleFrom(
 //                                         backgroundColor: Colors.red,
-//                                         foregroundColor: Colors.white,
+//                                         foregroundColor: MainColors.white,
 //                                         padding: const EdgeInsets.symmetric(
 //                                             horizontal: 12, vertical: 6),
 //                                         textStyle: const TextStyle(
@@ -1402,22 +1448,22 @@
 //         runSpacing: 6,
 //         alignment: WrapAlignment.center,
 //         children: [
-//           _buildChannelChip("CH 1", _showChannel1, _channel1Color,
-//               (v) => setState(() => _showChannel1 = v)),
-//           _buildChannelChip("CH 2", _showChannel2, _channel2Color,
-//               (v) => setState(() => _showChannel2 = v)),
-//           _buildChannelChip("CH 3", _showChannel3, _channel3Color,
-//               (v) => setState(() => _showChannel3 = v)),
-//           _buildChannelChip("CH 4", _showChannel4, _channel4Color,
-//               (v) => setState(() => _showChannel4 = v)),
-//           _buildChannelChip("CH 5", _showChannel5, _channel5Color,
-//               (v) => setState(() => _showChannel5 = v)),
-//           _buildChannelChip("CH 6", _showChannel6, _channel6Color,
-//               (v) => setState(() => _showChannel6 = v)),
-//           _buildChannelChip("CH 7", _showChannel7, _channel7Color,
-//               (v) => setState(() => _showChannel7 = v)),
-//           _buildChannelChip("CH 8", _showChannel8, _channel8Color,
-//               (v) => setState(() => _showChannel8 = v)),
+//           _buildChannelChip(ChannelLabels.ch1Short, _showChannel1,
+//               _channel1Color, (v) => setState(() => _showChannel1 = v)),
+//           _buildChannelChip(ChannelLabels.ch2Short, _showChannel2,
+//               _channel2Color, (v) => setState(() => _showChannel2 = v)),
+//           _buildChannelChip(ChannelLabels.ch3Short, _showChannel3,
+//               _channel3Color, (v) => setState(() => _showChannel3 = v)),
+//           _buildChannelChip(ChannelLabels.ch4Short, _showChannel4,
+//               _channel4Color, (v) => setState(() => _showChannel4 = v)),
+//           _buildChannelChip(ChannelLabels.ch5Short, _showChannel5,
+//               _channel5Color, (v) => setState(() => _showChannel5 = v)),
+//           _buildChannelChip(ChannelLabels.ch6Short, _showChannel6,
+//               _channel6Color, (v) => setState(() => _showChannel6 = v)),
+//           _buildChannelChip(ChannelLabels.ch7Short, _showChannel7,
+//               _channel7Color, (v) => setState(() => _showChannel7 = v)),
+//           _buildChannelChip(ChannelLabels.ch8Short, _showChannel8,
+//               _channel8Color, (v) => setState(() => _showChannel8 = v)),
 //         ],
 //       ),
 //     );
@@ -1434,7 +1480,7 @@
 //       labelStyle: TextStyle(
 //           color: selected ? color : Colors.grey,
 //           fontWeight: FontWeight.bold,
-//           fontSize: 11),
+//           fontSize: 10),
 //       visualDensity: VisualDensity.compact,
 //     );
 //   }
@@ -1443,26 +1489,34 @@
 //     return Padding(
 //       padding: const EdgeInsets.symmetric(horizontal: 16),
 //       child: Wrap(
-//         spacing: 12,
+//         spacing: 10,
 //         runSpacing: 6,
 //         alignment: WrapAlignment.center,
 //         children: [
 //           if (_showChannel1)
-//             _buildLegendItem("CH1", _latestValue1, _channel1Color),
+//             _buildLegendItem(
+//                 ChannelLabels.ch1Short, _latestValue1, _channel1Color),
 //           if (_showChannel2)
-//             _buildLegendItem("CH2", _latestValue2, _channel2Color),
+//             _buildLegendItem(
+//                 ChannelLabels.ch2Short, _latestValue2, _channel2Color),
 //           if (_showChannel3)
-//             _buildLegendItem("CH3", _latestValue3, _channel3Color),
+//             _buildLegendItem(
+//                 ChannelLabels.ch3Short, _latestValue3, _channel3Color),
 //           if (_showChannel4)
-//             _buildLegendItem("CH4", _latestValue4, _channel4Color),
+//             _buildLegendItem(
+//                 ChannelLabels.ch4Short, _latestValue4, _channel4Color),
 //           if (_showChannel5)
-//             _buildLegendItem("CH5", _latestValue5, _channel5Color),
+//             _buildLegendItem(
+//                 ChannelLabels.ch5Short, _latestValue5, _channel5Color),
 //           if (_showChannel6)
-//             _buildLegendItem("CH6", _latestValue6, _channel6Color),
+//             _buildLegendItem(
+//                 ChannelLabels.ch6Short, _latestValue6, _channel6Color),
 //           if (_showChannel7)
-//             _buildLegendItem("CH7", _latestValue7, _channel7Color),
+//             _buildLegendItem(
+//                 ChannelLabels.ch7Short, _latestValue7, _channel7Color),
 //           if (_showChannel8)
-//             _buildLegendItem("CH8", _latestValue8, _channel8Color),
+//             _buildLegendItem(
+//                 ChannelLabels.ch8Short, _latestValue8, _channel8Color),
 //         ],
 //       ),
 //     );
@@ -1476,7 +1530,7 @@
 //         const SizedBox(width: 4),
 //         Text("$label: ${value.toStringAsFixed(1)}",
 //             style: TextStyle(
-//                 color: color, fontWeight: FontWeight.bold, fontSize: 11)),
+//                 color: color, fontWeight: FontWeight.bold, fontSize: 10)),
 //       ],
 //     );
 //   }
@@ -1570,7 +1624,7 @@
 //             },
 //             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
 //             child:
-//                 const Text("Restart", style: TextStyle(color: Colors.white)),
+//                 const Text("Restart", style: TextStyle(color: MainColors.white)),
 //           ),
 //         ],
 //       ),
@@ -1718,8 +1772,8 @@
 //                 meta: meta,
 //                 space: 8.0,
 //                 child: Text(DateFormat('HH:mm:ss').format(date),
-//                     style: TextStyle(
-//                         color: Colors.grey[700], fontSize: 10)),
+//                     style:
+//                         TextStyle(color: Colors.grey[700], fontSize: 10)),
 //               );
 //             },
 //           ),
@@ -1796,23 +1850,31 @@
 //   ({String label, Color color}) _getChannelInfo(int barIndex) {
 //     List<({String label, Color color})> visibleChannels = [];
 //     if (_showChannel1)
-//       visibleChannels.add((label: "CH1", color: _channel1Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch1Short, color: _channel1Color));
 //     if (_showChannel2)
-//       visibleChannels.add((label: "CH2", color: _channel2Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch2Short, color: _channel2Color));
 //     if (_showChannel3)
-//       visibleChannels.add((label: "CH3", color: _channel3Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch3Short, color: _channel3Color));
 //     if (_showChannel4)
-//       visibleChannels.add((label: "CH4", color: _channel4Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch4Short, color: _channel4Color));
 //     if (_showChannel5)
-//       visibleChannels.add((label: "CH5", color: _channel5Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch5Short, color: _channel5Color));
 //     if (_showChannel6)
-//       visibleChannels.add((label: "CH6", color: _channel6Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch6Short, color: _channel6Color));
 //     if (_showChannel7)
-//       visibleChannels.add((label: "CH7", color: _channel7Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch7Short, color: _channel7Color));
 //     if (_showChannel8)
-//       visibleChannels.add((label: "CH8", color: _channel8Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch8Short, color: _channel8Color));
 //     if (barIndex < visibleChannels.length) return visibleChannels[barIndex];
-//     return (label: "CH?", color: Colors.grey);
+//     return (label: "??", color: Colors.grey);
 //   }
 // }
 
@@ -1873,7 +1935,7 @@
 //             onPressed: () => Navigator.pop(context, true),
 //             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
 //             child:
-//                 const Text("Delete", style: TextStyle(color: Colors.white)),
+//                 const Text("Delete", style: TextStyle(color: MainColors.white)),
 //           ),
 //         ],
 //       ),
@@ -1888,10 +1950,10 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor: MainColors.white,
+//       backgroundColor: MainColors.white
 //       appBar: AppBar(
 //         title: Text("Saved Recordings", style: AppTextStyles.header),
-//         backgroundColor: MainColors.white,
+//         backgroundColor: MainColors.white
 //         elevation: 1,
 //         leading: IconButton(
 //           icon: const Icon(Icons.arrow_back_ios, color: MainColors.black),
@@ -2256,8 +2318,8 @@
 //           _dataPoints.last.timestamp.millisecondsSinceEpoch.toDouble();
 //       final totalRange = dataMaxX - dataMinX;
 
-//       double newRange = (currentRange * 1.5)
-//           .clamp(_minVisibleDuration, totalRange);
+//       double newRange =
+//           (currentRange * 1.5).clamp(_minVisibleDuration, totalRange);
 
 //       final center = ((_viewMinX ?? 0) + (_viewMaxX ?? 0)) / 2;
 //       _viewMinX = center - newRange / 2;
@@ -2322,7 +2384,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor: MainColors.white,
+//       backgroundColor: MainColors.white
 //       appBar: AppBar(
 //         title: Column(
 //           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2333,7 +2395,7 @@
 //                     .copyWith(fontSize: 12, color: Colors.grey[600])),
 //           ],
 //         ),
-//         backgroundColor: MainColors.white,
+//         backgroundColor: MainColors.white
 //         elevation: 1,
 //         leading: IconButton(
 //           icon: const Icon(Icons.arrow_back_ios, color: MainColors.black),
@@ -2383,7 +2445,7 @@
 //           IconButton(
 //             onPressed: _zoomOut,
 //             icon: const Icon(Icons.zoom_out),
-//             tooltip: "Zoom Out (show more time)",
+//             tooltip: "Zoom Out",
 //             style: IconButton.styleFrom(
 //               backgroundColor: Colors.grey[200],
 //             ),
@@ -2408,7 +2470,7 @@
 //           IconButton(
 //             onPressed: _zoomIn,
 //             icon: const Icon(Icons.zoom_in),
-//             tooltip: "Zoom In (show less time)",
+//             tooltip: "Zoom In",
 //             style: IconButton.styleFrom(
 //               backgroundColor: Colors.grey[200],
 //             ),
@@ -2460,8 +2522,11 @@
 //           Row(children: [
 //             const Icon(Icons.layers, size: 18),
 //             const SizedBox(width: 8),
-//             Text("Channels: 8 (2 characteristics × 4 channels)",
-//                 style: AppTextStyles.regular),
+//             Expanded(
+//               child: Text(
+//                   "Channels: ${ChannelLabels.ch1Short}, ${ChannelLabels.ch2Short}, ${ChannelLabels.ch3Short}, ${ChannelLabels.ch4Short}, ${ChannelLabels.ch5Short}, ${ChannelLabels.ch6Short}, ${ChannelLabels.ch7Short}, ${ChannelLabels.ch8Short}",
+//                   style: AppTextStyles.regular.copyWith(fontSize: 12)),
+//             ),
 //           ]),
 //         ],
 //       ),
@@ -2473,7 +2538,7 @@
 //       margin: const EdgeInsets.symmetric(horizontal: 16),
 //       padding: const EdgeInsets.all(16),
 //       decoration: BoxDecoration(
-//         color: Colors.white,
+//         color: MainColors.white,
 //         borderRadius: BorderRadius.circular(12),
 //         boxShadow: [
 //           BoxShadow(
@@ -2487,29 +2552,29 @@
 //         children: [
 //           Text("Statistics", style: AppTextStyles.bold),
 //           const SizedBox(height: 12),
-//           _buildChannelStats("Channel 1", _channel1Color, 'min_value1',
-//               'max_value1', 'avg_value1'),
+//           _buildChannelStats(ChannelLabels.ch1, _channel1Color,
+//               'min_value1', 'max_value1', 'avg_value1'),
 //           const SizedBox(height: 6),
-//           _buildChannelStats("Channel 2", _channel2Color, 'min_value2',
-//               'max_value2', 'avg_value2'),
+//           _buildChannelStats(ChannelLabels.ch2, _channel2Color,
+//               'min_value2', 'max_value2', 'avg_value2'),
 //           const SizedBox(height: 6),
-//           _buildChannelStats("Channel 3", _channel3Color, 'min_value3',
-//               'max_value3', 'avg_value3'),
+//           _buildChannelStats(ChannelLabels.ch3, _channel3Color,
+//               'min_value3', 'max_value3', 'avg_value3'),
 //           const SizedBox(height: 6),
-//           _buildChannelStats("Channel 4", _channel4Color, 'min_value4',
-//               'max_value4', 'avg_value4'),
+//           _buildChannelStats(ChannelLabels.ch4, _channel4Color,
+//               'min_value4', 'max_value4', 'avg_value4'),
 //           const SizedBox(height: 6),
-//           _buildChannelStats("Channel 5", _channel5Color, 'min_value5',
-//               'max_value5', 'avg_value5'),
+//           _buildChannelStats(ChannelLabels.ch5, _channel5Color,
+//               'min_value5', 'max_value5', 'avg_value5'),
 //           const SizedBox(height: 6),
-//           _buildChannelStats("Channel 6", _channel6Color, 'min_value6',
-//               'max_value6', 'avg_value6'),
+//           _buildChannelStats(ChannelLabels.ch6, _channel6Color,
+//               'min_value6', 'max_value6', 'avg_value6'),
 //           const SizedBox(height: 6),
-//           _buildChannelStats("Channel 7", _channel7Color, 'min_value7',
-//               'max_value7', 'avg_value7'),
+//           _buildChannelStats(ChannelLabels.ch7, _channel7Color,
+//               'min_value7', 'max_value7', 'avg_value7'),
 //           const SizedBox(height: 6),
-//           _buildChannelStats("Channel 8", _channel8Color, 'min_value8',
-//               'max_value8', 'avg_value8'),
+//           _buildChannelStats(ChannelLabels.ch8, _channel8Color,
+//               'min_value8', 'max_value8', 'avg_value8'),
 //         ],
 //       ),
 //     );
@@ -2549,7 +2614,7 @@
 //           label: const Text("EXPORT TO CSV (8 CHANNELS)"),
 //           style: ElevatedButton.styleFrom(
 //             backgroundColor: Colors.green[600],
-//             foregroundColor: Colors.white,
+//             foregroundColor: MainColors.white,
 //             padding: const EdgeInsets.symmetric(vertical: 16),
 //             shape: RoundedRectangleBorder(
 //                 borderRadius: BorderRadius.circular(12)),
@@ -2567,21 +2632,21 @@
 //         runSpacing: 6,
 //         alignment: WrapAlignment.center,
 //         children: [
-//           _buildChip("CH 1", _showChannel1, _channel1Color,
+//           _buildChip(ChannelLabels.ch1Short, _showChannel1, _channel1Color,
 //               (v) => setState(() => _showChannel1 = v)),
-//           _buildChip("CH 2", _showChannel2, _channel2Color,
+//           _buildChip(ChannelLabels.ch2Short, _showChannel2, _channel2Color,
 //               (v) => setState(() => _showChannel2 = v)),
-//           _buildChip("CH 3", _showChannel3, _channel3Color,
+//           _buildChip(ChannelLabels.ch3Short, _showChannel3, _channel3Color,
 //               (v) => setState(() => _showChannel3 = v)),
-//           _buildChip("CH 4", _showChannel4, _channel4Color,
+//           _buildChip(ChannelLabels.ch4Short, _showChannel4, _channel4Color,
 //               (v) => setState(() => _showChannel4 = v)),
-//           _buildChip("CH 5", _showChannel5, _channel5Color,
+//           _buildChip(ChannelLabels.ch5Short, _showChannel5, _channel5Color,
 //               (v) => setState(() => _showChannel5 = v)),
-//           _buildChip("CH 6", _showChannel6, _channel6Color,
+//           _buildChip(ChannelLabels.ch6Short, _showChannel6, _channel6Color,
 //               (v) => setState(() => _showChannel6 = v)),
-//           _buildChip("CH 7", _showChannel7, _channel7Color,
+//           _buildChip(ChannelLabels.ch7Short, _showChannel7, _channel7Color,
 //               (v) => setState(() => _showChannel7 = v)),
-//           _buildChip("CH 8", _showChannel8, _channel8Color,
+//           _buildChip(ChannelLabels.ch8Short, _showChannel8, _channel8Color,
 //               (v) => setState(() => _showChannel8 = v)),
 //         ],
 //       ),
@@ -2599,7 +2664,7 @@
 //       labelStyle: TextStyle(
 //           color: selected ? color : Colors.grey,
 //           fontWeight: FontWeight.bold,
-//           fontSize: 11),
+//           fontSize: 10),
 //       visualDensity: VisualDensity.compact,
 //     );
 //   }
@@ -2709,23 +2774,23 @@
 
 //     // Dynamic symmetric Y-axis
 //     double maxAbsValue = 1;
-//     void _checkSpots(List<FlSpot> spots) {
+//     void checkSpots(List<FlSpot> spots) {
 //       for (var spot in spots) {
 //         if (spot.y.abs() > maxAbsValue) maxAbsValue = spot.y.abs();
 //       }
 //     }
 
-//     if (_showChannel1) _checkSpots(spots1);
-//     if (_showChannel2) _checkSpots(spots2);
-//     if (_showChannel3) _checkSpots(spots3);
-//     if (_showChannel4) _checkSpots(spots4);
-//     if (_showChannel5) _checkSpots(spots5);
-//     if (_showChannel6) _checkSpots(spots6);
-//     if (_showChannel7) _checkSpots(spots7);
-//     if (_showChannel8) _checkSpots(spots8);
+//     if (_showChannel1) checkSpots(spots1);
+//     if (_showChannel2) checkSpots(spots2);
+//     if (_showChannel3) checkSpots(spots3);
+//     if (_showChannel4) checkSpots(spots4);
+//     if (_showChannel5) checkSpots(spots5);
+//     if (_showChannel6) checkSpots(spots6);
+//     if (_showChannel7) checkSpots(spots7);
+//     if (_showChannel8) checkSpots(spots8);
 //     maxAbsValue = maxAbsValue * 1.1;
 
-//     LineChartBarData _makeLine(List<FlSpot> spots, Color color) {
+//     LineChartBarData makeLine(List<FlSpot> spots, Color color) {
 //       return LineChartBarData(
 //         spots: spots,
 //         isCurved: true,
@@ -2746,22 +2811,30 @@
 //       );
 //     }
 
-//     if (_showChannel1 && spots1.isNotEmpty)
-//       lineBars.add(_makeLine(spots1, _channel1Color));
-//     if (_showChannel2 && spots2.isNotEmpty)
-//       lineBars.add(_makeLine(spots2, _channel2Color));
-//     if (_showChannel3 && spots3.isNotEmpty)
-//       lineBars.add(_makeLine(spots3, _channel3Color));
-//     if (_showChannel4 && spots4.isNotEmpty)
-//       lineBars.add(_makeLine(spots4, _channel4Color));
-//     if (_showChannel5 && spots5.isNotEmpty)
-//       lineBars.add(_makeLine(spots5, _channel5Color));
-//     if (_showChannel6 && spots6.isNotEmpty)
-//       lineBars.add(_makeLine(spots6, _channel6Color));
-//     if (_showChannel7 && spots7.isNotEmpty)
-//       lineBars.add(_makeLine(spots7, _channel7Color));
-//     if (_showChannel8 && spots8.isNotEmpty)
-//       lineBars.add(_makeLine(spots8, _channel8Color));
+//     if (_showChannel1 && spots1.isNotEmpty) {
+//       lineBars.add(makeLine(spots1, _channel1Color));
+//     }
+//     if (_showChannel2 && spots2.isNotEmpty) {
+//       lineBars.add(makeLine(spots2, _channel2Color));
+//     }
+//     if (_showChannel3 && spots3.isNotEmpty) {
+//       lineBars.add(makeLine(spots3, _channel3Color));
+//     }
+//     if (_showChannel4 && spots4.isNotEmpty) {
+//       lineBars.add(makeLine(spots4, _channel4Color));
+//     }
+//     if (_showChannel5 && spots5.isNotEmpty) {
+//       lineBars.add(makeLine(spots5, _channel5Color));
+//     }
+//     if (_showChannel6 && spots6.isNotEmpty) {
+//       lineBars.add(makeLine(spots6, _channel6Color));
+//     }
+//     if (_showChannel7 && spots7.isNotEmpty) {
+//       lineBars.add(makeLine(spots7, _channel7Color));
+//     }
+//     if (_showChannel8 && spots8.isNotEmpty) {
+//       lineBars.add(makeLine(spots8, _channel8Color));
+//     }
 
 //     return LineChartData(
 //       minX: minX,
@@ -2863,33 +2936,41 @@
 //   ({String label, Color color}) _getChannelInfo(int barIndex) {
 //     List<({String label, Color color})> visibleChannels = [];
 //     if (_showChannel1) {
-//       visibleChannels.add((label: "CH1", color: _channel1Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch1Short, color: _channel1Color));
 //     }
 //     if (_showChannel2) {
-//       visibleChannels.add((label: "CH2", color: _channel2Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch2Short, color: _channel2Color));
 //     }
 //     if (_showChannel3) {
-//       visibleChannels.add((label: "CH3", color: _channel3Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch3Short, color: _channel3Color));
 //     }
 //     if (_showChannel4) {
-//       visibleChannels.add((label: "CH4", color: _channel4Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch4Short, color: _channel4Color));
 //     }
 //     if (_showChannel5) {
-//       visibleChannels.add((label: "CH5", color: _channel5Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch5Short, color: _channel5Color));
 //     }
 //     if (_showChannel6) {
-//       visibleChannels.add((label: "CH6", color: _channel6Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch6Short, color: _channel6Color));
 //     }
 //     if (_showChannel7) {
-//       visibleChannels.add((label: "CH7", color: _channel7Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch7Short, color: _channel7Color));
 //     }
 //     if (_showChannel8) {
-//       visibleChannels.add((label: "CH8", color: _channel8Color));
+//       visibleChannels
+//           .add((label: ChannelLabels.ch8Short, color: _channel8Color));
 //     }
 //     if (barIndex < visibleChannels.length) {
 //       return visibleChannels[barIndex];
 //     }
-//     return (label: "CH?", color: Colors.grey);
+//     return (label: "??", color: Colors.grey);
 //   }
 
 //   Widget _buildDataTable() {
@@ -2917,7 +2998,6 @@
 //             ),
 //           ),
 //           const Divider(height: 1),
-//           // Header row
 //           SingleChildScrollView(
 //             scrollDirection: Axis.horizontal,
 //             child: Column(
@@ -2932,70 +3012,70 @@
 //                           width: 40,
 //                           child: Text("#",
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: Colors.grey[700]))),
 //                       SizedBox(
 //                           width: 80,
 //                           child: Text("Time",
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: Colors.grey[700]))),
 //                       SizedBox(
-//                           width: 55,
-//                           child: Text("CH1",
+//                           width: 60,
+//                           child: Text(ChannelLabels.ch1Short,
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: _channel1Color))),
 //                       SizedBox(
-//                           width: 55,
-//                           child: Text("CH2",
+//                           width: 60,
+//                           child: Text(ChannelLabels.ch2Short,
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: _channel2Color))),
 //                       SizedBox(
 //                           width: 55,
-//                           child: Text("CH3",
+//                           child: Text(ChannelLabels.ch3Short,
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: _channel3Color))),
 //                       SizedBox(
 //                           width: 55,
-//                           child: Text("CH4",
+//                           child: Text(ChannelLabels.ch4Short,
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: _channel4Color))),
 //                       SizedBox(
-//                           width: 55,
-//                           child: Text("CH5",
+//                           width: 50,
+//                           child: Text(ChannelLabels.ch5Short,
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: _channel5Color))),
 //                       SizedBox(
 //                           width: 55,
-//                           child: Text("CH6",
+//                           child: Text(ChannelLabels.ch6Short,
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: _channel6Color))),
 //                       SizedBox(
 //                           width: 55,
-//                           child: Text("CH7",
+//                           child: Text(ChannelLabels.ch7Short,
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: _channel7Color))),
 //                       SizedBox(
-//                           width: 55,
-//                           child: Text("CH8",
+//                           width: 45,
+//                           child: Text(ChannelLabels.ch8Short,
 //                               style: TextStyle(
-//                                   fontSize: 10,
+//                                   fontSize: 9,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: _channel8Color))),
 //                     ],
@@ -3007,7 +3087,7 @@
 //                     padding: const EdgeInsets.symmetric(
 //                         horizontal: 12, vertical: 8),
 //                     color: e.key % 2 == 0
-//                         ? Colors.white
+//                         ? MainColors.white
 //                         : Colors.grey[50],
 //                     child: Row(
 //                       children: [
@@ -3015,62 +3095,62 @@
 //                             width: 40,
 //                             child: Text("${e.key + 1}",
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
 //                             width: 80,
 //                             child: Text(
 //                                 DateFormat('HH:mm:ss')
 //                                     .format(p.timestamp),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
-//                             width: 55,
+//                             width: 60,
 //                             child: Text(
 //                                 p.value1.toStringAsFixed(1),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
-//                             width: 55,
+//                             width: 60,
 //                             child: Text(
 //                                 p.value2.toStringAsFixed(1),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
 //                             width: 55,
 //                             child: Text(
 //                                 p.value3.toStringAsFixed(1),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
 //                             width: 55,
 //                             child: Text(
 //                                 p.value4.toStringAsFixed(1),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
-//                             width: 55,
+//                             width: 50,
 //                             child: Text(
 //                                 p.value5.toStringAsFixed(1),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
 //                             width: 55,
 //                             child: Text(
 //                                 p.value6.toStringAsFixed(1),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
 //                             width: 55,
 //                             child: Text(
 //                                 p.value7.toStringAsFixed(1),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                         SizedBox(
-//                             width: 55,
+//                             width: 45,
 //                             child: Text(
 //                                 p.value8.toStringAsFixed(1),
 //                                 style:
-//                                     const TextStyle(fontSize: 11))),
+//                                     const TextStyle(fontSize: 10))),
 //                       ],
 //                     ),
 //                   );
@@ -3087,17 +3167,17 @@
 //     if (d.inHours > 0) {
 //       return "${d.inHours}h ${d.inMinutes.remainder(60)}m";
 //     }
-//     if (d.inMinutes > 0)
-//     {
+//     if (d.inMinutes > 0) {
 //       return "${d.inMinutes}m ${d.inSeconds.remainder(60)}s";
 //     }
 //     return "${d.inSeconds}s";
 //   }
 // }
+// PAL1.5, PAR1.5, PBL1.5, PBR1.5,  here we get these 4 values from the ble right so calculate the average of these 4 and store that in the newly created field called PAL3
 
+ 
 
-
-import 'package:exg_visualizer/BLE/csv_exporter.dart';
+ import 'package:exg_visualizer/BLE/csv_exporter.dart';
 import 'dart:async';
 import 'package:exg_visualizer/BLE/db.dart';
 import 'package:exg_visualizer/Libraries/Colors/Colors.dart';
@@ -3107,7 +3187,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:intl/intl.dart';
 
-// ✅ Channel label constants
+// Channel label constants
 class ChannelLabels {
   static const String ch1 = "EEG(Left)";
   static const String ch2 = "EEG(Right)";
@@ -3117,6 +3197,7 @@ class ChannelLabels {
   static const String ch6 = "PBL1.5";
   static const String ch7 = "PBR1.5";
   static const String ch8 = "NoN";
+  static const String pal3 = "PAL3";
 
   // Short labels for compact UI elements
   static const String ch1Short = "EEG(L)";
@@ -3127,9 +3208,10 @@ class ChannelLabels {
   static const String ch6Short = "PBL1.5";
   static const String ch7Short = "PBR1.5";
   static const String ch8Short = "NoN";
+  static const String pal3Short = "PAL3";
 }
 
-// ✅ Data class to hold 8 values (4 from each characteristic)
+// ✅ Data class to hold 8 values + PAL3 calculated average
 class OctoChannelData {
   final double value1;
   final double value2;
@@ -3139,6 +3221,7 @@ class OctoChannelData {
   final double value6;
   final double value7;
   final double value8;
+  final double pal3; // Average of PAL1.5, PAR1.5, PBL1.5, PBR1.5
   final DateTime timestamp;
 
   OctoChannelData({
@@ -3150,6 +3233,7 @@ class OctoChannelData {
     required this.value6,
     required this.value7,
     required this.value8,
+    required this.pal3,
     required this.timestamp,
   });
 }
@@ -3193,6 +3277,7 @@ class _BleDevicePageState extends State<BleDevicePage> {
   String _displayValue6 = "--";
   String _displayValue7 = "--";
   String _displayValue8 = "--";
+  String _displayValuePAL3 = "--";
 
   List<int> _rawBytes1 = [];
   List<int> _rawBytes2 = [];
@@ -3245,6 +3330,7 @@ class _BleDevicePageState extends State<BleDevicePage> {
             _displayValue6 = "--";
             _displayValue7 = "--";
             _displayValue8 = "--";
+            _displayValuePAL3 = "--";
             _rawBytes1 = [];
             _rawBytes2 = [];
             _rawString1 = "";
@@ -3495,8 +3581,16 @@ class _BleDevicePageState extends State<BleDevicePage> {
     });
   }
 
-  /// Emit combined 8-channel data to the stream
+  /// Emit combined 8-channel data to the stream with calculated PAL3
   void _emitCombinedData() {
+    // Calculate PAL3 as average of PAL1.5, PAR1.5, PBL1.5, PBR1.5
+    // These are: value3 (PAL1.5), value4 (PAR1.5), value6 (PBL1.5), value7 (PBR1.5)
+    final double pal3Average = (_latestVal3 + _latestVal4 + _latestVal6 + _latestVal7) / 4.0;
+    
+    setState(() {
+      _displayValuePAL3 = pal3Average.toStringAsFixed(1);
+    });
+    
     _graphDataController.add(OctoChannelData(
       value1: _latestVal1,
       value2: _latestVal2,
@@ -3506,6 +3600,7 @@ class _BleDevicePageState extends State<BleDevicePage> {
       value6: _latestVal6,
       value7: _latestVal7,
       value8: _latestVal8,
+      pal3: pal3Average,
       timestamp: DateTime.now(),
     ));
   }
@@ -3617,6 +3712,8 @@ class _BleDevicePageState extends State<BleDevicePage> {
             const SizedBox(height: 20),
             _buildOctoValueDisplayCard(),
             const SizedBox(height: 20),
+            _buildPAL3Card(),
+            const SizedBox(height: 20),
             _buildRawDataCard(),
             const SizedBox(height: 24),
             _buildGraphButton(),
@@ -3725,10 +3822,10 @@ class _BleDevicePageState extends State<BleDevicePage> {
       child: ElevatedButton.icon(
         onPressed: _isConnected && hasAnyChar ? _openGraphPage : null,
         icon: const Icon(Icons.show_chart, size: 24),
-        label: Text("OPEN REAL-TIME GRAPH (8 CH)",
+        label: Text("OPEN REAL-TIME GRAPH (8 CH + PAL3)",
             style: AppTextStyles.bold.copyWith(fontSize: 16)),
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
+          foregroundColor: MainColors.white,
           backgroundColor: Colors.blueGrey[800],
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape:
@@ -3789,7 +3886,7 @@ class _BleDevicePageState extends State<BleDevicePage> {
                 ),
                 if (_isConnected)
                   Text(
-                    "Receiving 8-channel data (2 characteristics)",
+                    "Receiving 8-channel data + PAL3 calculation",
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
               ],
@@ -3814,20 +3911,20 @@ class _BleDevicePageState extends State<BleDevicePage> {
           Text(
             "LIVE VALUES",
             style: AppTextStyles.regular
-                .copyWith(color: Colors.white.withOpacity(0.8)),
+                .copyWith(color: MainColors.white.withOpacity(0.8)),
           ),
           const SizedBox(height: 8),
           // Characteristic 1 label
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: MainColors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
                 "Characteristic 1 — EEG & PA Channels",
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.6), fontSize: 11)),
+                    color: MainColors.white.withOpacity(0.6), fontSize: 11)),
           ),
           const SizedBox(height: 12),
           Row(
@@ -3838,7 +3935,7 @@ class _BleDevicePageState extends State<BleDevicePage> {
               Container(
                   height: 60,
                   width: 1,
-                  color: Colors.white.withOpacity(0.3)),
+                  color: MainColors.white.withOpacity(0.3)),
               _buildChannelDisplay(
                   ChannelLabels.ch2, _displayValue2, Colors.orange),
             ],
@@ -3852,25 +3949,25 @@ class _BleDevicePageState extends State<BleDevicePage> {
               Container(
                   height: 60,
                   width: 1,
-                  color: Colors.white.withOpacity(0.3)),
+                  color: MainColors.white.withOpacity(0.3)),
               _buildChannelDisplay(
                   ChannelLabels.ch4, _displayValue4, Colors.purple),
             ],
           ),
           const SizedBox(height: 16),
-          Divider(color: Colors.white.withOpacity(0.3)),
+          Divider(color: MainColors.white.withOpacity(0.3)),
           const SizedBox(height: 8),
           // Characteristic 2 label
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: MainColors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
                 "Characteristic 2 — PA, PB & NoN Channels",
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.6), fontSize: 11)),
+                    color: MainColors.white.withOpacity(0.6), fontSize: 11)),
           ),
           const SizedBox(height: 12),
           Row(
@@ -3881,7 +3978,7 @@ class _BleDevicePageState extends State<BleDevicePage> {
               Container(
                   height: 60,
                   width: 1,
-                  color: Colors.white.withOpacity(0.3)),
+                  color: MainColors.white.withOpacity(0.3)),
               _buildChannelDisplay(
                   ChannelLabels.ch6, _displayValue6, Colors.red),
             ],
@@ -3895,10 +3992,72 @@ class _BleDevicePageState extends State<BleDevicePage> {
               Container(
                   height: 60,
                   width: 1,
-                  color: Colors.white.withOpacity(0.3)),
+                  color: MainColors.white.withOpacity(0.3)),
               _buildChannelDisplay(
                   ChannelLabels.ch8, _displayValue8, Colors.pink),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPAL3Card() {
+    return Container( 
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.amber,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.calculate, color: MainColors.white, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                "CALCULATED VALUE",
+                style: AppTextStyles.bold.copyWith(
+                  color: MainColors.white,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            ChannelLabels.pal3,
+            style: AppTextStyles.bold.copyWith(
+              color: MainColors.white,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _displayValuePAL3,
+            style: AppTextStyles.header.copyWith(
+              color: MainColors.white,
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Average of PAL1.5, PAR1.5, PBL1.5, PBR1.5",
+            style: TextStyle(
+              color: MainColors.white.withOpacity(0.9),
+              fontSize: 11,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -4010,7 +4169,7 @@ class _BleDevicePageState extends State<BleDevicePage> {
             child: const Text("Read Values"),
             style: ElevatedButton.styleFrom(
               backgroundColor: MainColors.primaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: MainColors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
@@ -4037,7 +4196,7 @@ class _BleDevicePageState extends State<BleDevicePage> {
 }
 
 // =============================================================================
-// LIVE EXG CHART PAGE - 8 CHANNELS
+// LIVE EXG CHART PAGE - 8 CHANNELS + PAL3
 // =============================================================================
 
 class LiveExgChartPage extends StatefulWidget {
@@ -4057,7 +4216,7 @@ class LiveExgChartPage extends StatefulWidget {
 class _LiveExgChartPageState extends State<LiveExgChartPage> {
   late StreamSubscription<OctoChannelData> _subscription;
 
-  // Display points for all 8 channels
+  // Display points for all 8 channels + PAL3
   final List<FlSpot> _displayPoints1 = [];
   final List<FlSpot> _displayPoints2 = [];
   final List<FlSpot> _displayPoints3 = [];
@@ -4066,6 +4225,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
   final List<FlSpot> _displayPoints6 = [];
   final List<FlSpot> _displayPoints7 = [];
   final List<FlSpot> _displayPoints8 = [];
+  final List<FlSpot> _displayPointsPAL3 = [];
 
   // ALL data points stored for saving
   final List<DataPoint> _allDataPoints = [];
@@ -4079,6 +4239,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
   bool _showChannel6 = true;
   bool _showChannel7 = true;
   bool _showChannel8 = true;
+  bool _showPAL3 = true;
 
   // Scrolling control
   bool _isLiveMode = true;
@@ -4097,6 +4258,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
   double _latestValue6 = 0;
   double _latestValue7 = 0;
   double _latestValue8 = 0;
+  double _latestValuePAL3 = 0;
 
   static const int _maxDisplayPoints = 5000;
 
@@ -4112,6 +4274,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
   static const Color _channel6Color = Colors.red;
   static const Color _channel7Color = Colors.teal;
   static const Color _channel8Color = Colors.pink;
+  static const Color _channelPAL3Color = Colors.amber;
 
   @override
   void initState() {
@@ -4149,6 +4312,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
         processedValue6: data.value6,
         processedValue7: data.value7,
         processedValue8: data.value8,
+        pal3: data.pal3,
       ));
 
       setState(() {
@@ -4162,6 +4326,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
         _displayPoints6.add(FlSpot(timestamp, data.value6));
         _displayPoints7.add(FlSpot(timestamp, data.value7));
         _displayPoints8.add(FlSpot(timestamp, data.value8));
+        _displayPointsPAL3.add(FlSpot(timestamp, data.pal3));
 
         _latestValue1 = data.value1;
         _latestValue2 = data.value2;
@@ -4171,6 +4336,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
         _latestValue6 = data.value6;
         _latestValue7 = data.value7;
         _latestValue8 = data.value8;
+        _latestValuePAL3 = data.pal3;
 
         while (_displayPoints1.length > _maxDisplayPoints) {
           _displayPoints1.removeAt(0);
@@ -4181,6 +4347,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
           _displayPoints6.removeAt(0);
           _displayPoints7.removeAt(0);
           _displayPoints8.removeAt(0);
+          _displayPointsPAL3.removeAt(0);
         }
       });
     });
@@ -4247,6 +4414,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
       _displayPoints6.clear();
       _displayPoints7.clear();
       _displayPoints8.clear();
+      _displayPointsPAL3.clear();
       _allDataPoints.clear();
       _recordingStartTime = DateTime.now();
       _isLiveMode = true;
@@ -4260,6 +4428,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
       _latestValue6 = 0;
       _latestValue7 = 0;
       _latestValue8 = 0;
+      _latestValuePAL3 = 0;
     });
   }
 
@@ -4305,7 +4474,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
             backgroundColor: Colors.green,
             action: SnackBarAction(
               label: "VIEW",
-              textColor: Colors.white,
+              textColor: MainColors.white,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -4463,7 +4632,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
                                       label: const Text("GO LIVE"),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
+                                        foregroundColor: MainColors.white,
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 12, vertical: 6),
                                         textStyle: const TextStyle(
@@ -4534,7 +4703,8 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
         _displayPoints5.isEmpty &&
         _displayPoints6.isEmpty &&
         _displayPoints7.isEmpty &&
-        _displayPoints8.isEmpty;
+        _displayPoints8.isEmpty &&
+        _displayPointsPAL3.isEmpty;
   }
 
   Widget _buildChannelToggles() {
@@ -4561,6 +4731,8 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
               _channel7Color, (v) => setState(() => _showChannel7 = v)),
           _buildChannelChip(ChannelLabels.ch8Short, _showChannel8,
               _channel8Color, (v) => setState(() => _showChannel8 = v)),
+          _buildChannelChip(ChannelLabels.pal3Short, _showPAL3,
+              _channelPAL3Color, (v) => setState(() => _showPAL3 = v)),
         ],
       ),
     );
@@ -4614,6 +4786,9 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
           if (_showChannel8)
             _buildLegendItem(
                 ChannelLabels.ch8Short, _latestValue8, _channel8Color),
+          if (_showPAL3)
+            _buildLegendItem(
+                ChannelLabels.pal3Short, _latestValuePAL3, _channelPAL3Color),
         ],
       ),
     );
@@ -4721,7 +4896,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child:
-                const Text("Restart", style: TextStyle(color: Colors.white)),
+                const Text("Restart", style: TextStyle(color: MainColors.white)),
           ),
         ],
       ),
@@ -4743,7 +4918,9 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
                             ? _displayPoints6
                             : _displayPoints7.isNotEmpty
                                 ? _displayPoints7
-                                : _displayPoints8;
+                                : _displayPoints8.isNotEmpty
+                                    ? _displayPoints8
+                                    : _displayPointsPAL3;
 
     double minX, maxX;
 
@@ -4782,6 +4959,7 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
     if (_showChannel6) allChannelPoints.add(_displayPoints6);
     if (_showChannel7) allChannelPoints.add(_displayPoints7);
     if (_showChannel8) allChannelPoints.add(_displayPoints8);
+    if (_showPAL3) allChannelPoints.add(_displayPointsPAL3);
 
     for (var channelPoints in allChannelPoints) {
       for (var point in channelPoints) {
@@ -4825,6 +5003,9 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
     if (_showChannel8 && _displayPoints8.isNotEmpty)
       lineBars.add(_createLineBar(
           _getVisiblePoints(_displayPoints8, minX, maxX), _channel8Color));
+    if (_showPAL3 && _displayPointsPAL3.isNotEmpty)
+      lineBars.add(_createLineBar(
+          _getVisiblePoints(_displayPointsPAL3, minX, maxX), _channelPAL3Color));
 
     return LineChartData(
       minX: minX,
@@ -4970,6 +5151,9 @@ class _LiveExgChartPageState extends State<LiveExgChartPage> {
     if (_showChannel8)
       visibleChannels
           .add((label: ChannelLabels.ch8Short, color: _channel8Color));
+    if (_showPAL3)
+      visibleChannels
+          .add((label: ChannelLabels.pal3Short, color: _channelPAL3Color));
     if (barIndex < visibleChannels.length) return visibleChannels[barIndex];
     return (label: "??", color: Colors.grey);
   }
@@ -5032,7 +5216,7 @@ class _SavedRecordingsPageState extends State<SavedRecordingsPage> {
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child:
-                const Text("Delete", style: TextStyle(color: Colors.white)),
+                const Text("Delete", style: TextStyle(color: MainColors.white)),
           ),
         ],
       ),
@@ -5205,7 +5389,7 @@ class _SavedRecordingsPageState extends State<SavedRecordingsPage> {
 }
 
 // =============================================================================
-// RECORDING DETAIL PAGE - 8 CHANNELS
+// RECORDING DETAIL PAGE - 8 CHANNELS + PAL3
 // =============================================================================
 
 class RecordingDetailPage extends StatefulWidget {
@@ -5231,6 +5415,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
   bool _showChannel6 = true;
   bool _showChannel7 = true;
   bool _showChannel8 = true;
+  bool _showPAL3 = true;
 
   double? _viewMinX;
   double? _viewMaxX;
@@ -5249,6 +5434,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
   static const Color _channel6Color = Colors.red;
   static const Color _channel7Color = Colors.teal;
   static const Color _channel8Color = Colors.pink;
+  static const Color _channelPAL3Color = Colors.amber;
 
   @override
   void initState() {
@@ -5621,7 +5807,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                  "Channels: ${ChannelLabels.ch1Short}, ${ChannelLabels.ch2Short}, ${ChannelLabels.ch3Short}, ${ChannelLabels.ch4Short}, ${ChannelLabels.ch5Short}, ${ChannelLabels.ch6Short}, ${ChannelLabels.ch7Short}, ${ChannelLabels.ch8Short}",
+                  "Channels: 8 + PAL3 (calculated)",
                   style: AppTextStyles.regular.copyWith(fontSize: 12)),
             ),
           ]),
@@ -5635,7 +5821,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MainColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -5672,6 +5858,9 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
           const SizedBox(height: 6),
           _buildChannelStats(ChannelLabels.ch8, _channel8Color,
               'min_value8', 'max_value8', 'avg_value8'),
+          const Divider(height: 20),
+          _buildChannelStats(ChannelLabels.pal3, _channelPAL3Color,
+              'min_pal3', 'max_pal3', 'avg_pal3'),
         ],
       ),
     );
@@ -5708,10 +5897,10 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
         child: ElevatedButton.icon(
           onPressed: _exportToCSV,
           icon: const Icon(Icons.file_download),
-          label: const Text("EXPORT TO CSV (8 CHANNELS)"),
+          label: const Text("EXPORT TO CSV (8 CH + PAL3)"),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green[600],
-            foregroundColor: Colors.white,
+            foregroundColor: MainColors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12)),
@@ -5745,6 +5934,8 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
               (v) => setState(() => _showChannel7 = v)),
           _buildChip(ChannelLabels.ch8Short, _showChannel8, _channel8Color,
               (v) => setState(() => _showChannel8 = v)),
+          _buildChip(ChannelLabels.pal3Short, _showPAL3, _channelPAL3Color,
+              (v) => setState(() => _showPAL3 = v)),
         ],
       ),
     );
@@ -5844,6 +6035,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
     List<FlSpot> spots6 = [];
     List<FlSpot> spots7 = [];
     List<FlSpot> spots8 = [];
+    List<FlSpot> spotsPAL3 = [];
 
     final minX = _viewMinX ??
         (_dataPoints.isNotEmpty
@@ -5866,6 +6058,9 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
         spots6.add(FlSpot(x, p.value6));
         spots7.add(FlSpot(x, p.value7));
         spots8.add(FlSpot(x, p.value8));
+        if (p.pal3 != null) {
+          spotsPAL3.add(FlSpot(x, p.pal3!));
+        }
       }
     }
 
@@ -5885,6 +6080,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
     if (_showChannel6) checkSpots(spots6);
     if (_showChannel7) checkSpots(spots7);
     if (_showChannel8) checkSpots(spots8);
+    if (_showPAL3) checkSpots(spotsPAL3);
     maxAbsValue = maxAbsValue * 1.1;
 
     LineChartBarData makeLine(List<FlSpot> spots, Color color) {
@@ -5931,6 +6127,9 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
     }
     if (_showChannel8 && spots8.isNotEmpty) {
       lineBars.add(makeLine(spots8, _channel8Color));
+    }
+    if (_showPAL3 && spotsPAL3.isNotEmpty) {
+      lineBars.add(makeLine(spotsPAL3, _channelPAL3Color));
     }
 
     return LineChartData(
@@ -6064,6 +6263,10 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
       visibleChannels
           .add((label: ChannelLabels.ch8Short, color: _channel8Color));
     }
+    if (_showPAL3) {
+      visibleChannels
+          .add((label: ChannelLabels.pal3Short, color: _channelPAL3Color));
+    }
     if (barIndex < visibleChannels.length) {
       return visibleChannels[barIndex];
     }
@@ -6175,6 +6378,13 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                   color: _channel8Color))),
+                      SizedBox(
+                          width: 50,
+                          child: Text(ChannelLabels.pal3Short,
+                              style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: _channelPAL3Color))),
                     ],
                   ),
                 ),
@@ -6184,7 +6394,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 8),
                     color: e.key % 2 == 0
-                        ? Colors.white
+                        ? MainColors.white
                         : Colors.grey[50],
                     child: Row(
                       children: [
@@ -6246,6 +6456,12 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
                             width: 45,
                             child: Text(
                                 p.value8.toStringAsFixed(1),
+                                style:
+                                    const TextStyle(fontSize: 10))),
+                        SizedBox(
+                            width: 50,
+                            child: Text(
+                                p.pal3?.toStringAsFixed(1) ?? '0.0',
                                 style:
                                     const TextStyle(fontSize: 10))),
                       ],

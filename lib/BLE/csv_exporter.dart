@@ -6,6 +6,16 @@
 // import 'db.dart';
 
 // class CSVExporter {
+//   // Channel name constants for CSV headers
+//   static const String _ch1Name = "EEG(Left)";
+//   static const String _ch2Name = "EEG(Right)";
+//   static const String _ch3Name = "PAL1.5";
+//   static const String _ch4Name = "PAR1.5";
+//   static const String _ch5Name = "PAR3";
+//   static const String _ch6Name = "PBL1.5";
+//   static const String _ch7Name = "PBR1.5";
+//   static const String _ch8Name = "NoN";
+
 //   static Future<void> exportWithDialog({
 //     required BuildContext context,
 //     required RecordingSession session,
@@ -82,31 +92,34 @@
 //     }
 //     buffer.writeln('Total Points,${dataPoints.length}');
 //     buffer.writeln('Channels,8');
+//     buffer.writeln(
+//         'Channel Names,$_ch1Name,$_ch2Name,$_ch3Name,$_ch4Name,$_ch5Name,$_ch6Name,$_ch7Name,$_ch8Name');
 //     buffer.writeln('');
 
-//     // Stats - 8 channels
+//     // Stats - 8 channels with proper names
 //     buffer.writeln('Statistics');
 //     buffer.writeln('Channel,Min,Max,Average');
 //     buffer.writeln(
-//         'Channel 1,${_formatValue(stats['min_value1'])},${_formatValue(stats['max_value1'])},${_formatValue(stats['avg_value1'])}');
+//         '$_ch1Name,${_formatValue(stats['min_value1'])},${_formatValue(stats['max_value1'])},${_formatValue(stats['avg_value1'])}');
 //     buffer.writeln(
-//         'Channel 2,${_formatValue(stats['min_value2'])},${_formatValue(stats['max_value2'])},${_formatValue(stats['avg_value2'])}');
+//         '$_ch2Name,${_formatValue(stats['min_value2'])},${_formatValue(stats['max_value2'])},${_formatValue(stats['avg_value2'])}');
 //     buffer.writeln(
-//         'Channel 3,${_formatValue(stats['min_value3'])},${_formatValue(stats['max_value3'])},${_formatValue(stats['avg_value3'])}');
+//         '$_ch3Name,${_formatValue(stats['min_value3'])},${_formatValue(stats['max_value3'])},${_formatValue(stats['avg_value3'])}');
 //     buffer.writeln(
-//         'Channel 4,${_formatValue(stats['min_value4'])},${_formatValue(stats['max_value4'])},${_formatValue(stats['avg_value4'])}');
+//         '$_ch4Name,${_formatValue(stats['min_value4'])},${_formatValue(stats['max_value4'])},${_formatValue(stats['avg_value4'])}');
 //     buffer.writeln(
-//         'Channel 5,${_formatValue(stats['min_value5'])},${_formatValue(stats['max_value5'])},${_formatValue(stats['avg_value5'])}');
+//         '$_ch5Name,${_formatValue(stats['min_value5'])},${_formatValue(stats['max_value5'])},${_formatValue(stats['avg_value5'])}');
 //     buffer.writeln(
-//         'Channel 6,${_formatValue(stats['min_value6'])},${_formatValue(stats['max_value6'])},${_formatValue(stats['avg_value6'])}');
+//         '$_ch6Name,${_formatValue(stats['min_value6'])},${_formatValue(stats['max_value6'])},${_formatValue(stats['avg_value6'])}');
 //     buffer.writeln(
-//         'Channel 7,${_formatValue(stats['min_value7'])},${_formatValue(stats['max_value7'])},${_formatValue(stats['avg_value7'])}');
+//         '$_ch7Name,${_formatValue(stats['min_value7'])},${_formatValue(stats['max_value7'])},${_formatValue(stats['avg_value7'])}');
 //     buffer.writeln(
-//         'Channel 8,${_formatValue(stats['min_value8'])},${_formatValue(stats['max_value8'])},${_formatValue(stats['avg_value8'])}');
+//         '$_ch8Name,${_formatValue(stats['min_value8'])},${_formatValue(stats['max_value8'])},${_formatValue(stats['avg_value8'])}');
 //     buffer.writeln('');
 
+//     // Data header with channel names
 //     buffer.writeln(
-//         'Index,Timestamp,Time (ms),Value 1,Value 2,Value 3,Value 4,Value 5,Value 6,Value 7,Value 8');
+//         'Index,Timestamp,Time (ms),$_ch1Name,$_ch2Name,$_ch3Name,$_ch4Name,$_ch5Name,$_ch6Name,$_ch7Name,$_ch8Name');
 
 //     // Data rows
 //     final startMs = dataPoints.isNotEmpty
@@ -159,6 +172,7 @@
 // }
 
 
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -176,6 +190,7 @@ class CSVExporter {
   static const String _ch6Name = "PBL1.5";
   static const String _ch7Name = "PBR1.5";
   static const String _ch8Name = "NoN";
+  static const String _pal3Name = "PAL3";  
 
   static Future<void> exportWithDialog({
     required BuildContext context,
@@ -252,12 +267,12 @@ class CSVExporter {
       buffer.writeln('Duration,${_formatDuration(session.duration!)}');
     }
     buffer.writeln('Total Points,${dataPoints.length}');
-    buffer.writeln('Channels,8');
+    buffer.writeln('Channels,9'); // UPDATED: 8 channels + PAL3
     buffer.writeln(
-        'Channel Names,$_ch1Name,$_ch2Name,$_ch3Name,$_ch4Name,$_ch5Name,$_ch6Name,$_ch7Name,$_ch8Name');
+        'Channel Names,$_ch1Name,$_ch2Name,$_ch3Name,$_ch4Name,$_ch5Name,$_ch6Name,$_ch7Name,$_ch8Name,$_pal3Name'); // UPDATED
     buffer.writeln('');
 
-    // Stats - 8 channels with proper names
+    // Stats - 8 channels + PAL3 with proper names
     buffer.writeln('Statistics');
     buffer.writeln('Channel,Min,Max,Average');
     buffer.writeln(
@@ -276,11 +291,14 @@ class CSVExporter {
         '$_ch7Name,${_formatValue(stats['min_value7'])},${_formatValue(stats['max_value7'])},${_formatValue(stats['avg_value7'])}');
     buffer.writeln(
         '$_ch8Name,${_formatValue(stats['min_value8'])},${_formatValue(stats['max_value8'])},${_formatValue(stats['avg_value8'])}');
+    // NEW: PAL3 statistics
+    buffer.writeln(
+        '$_pal3Name,${_formatValue(stats['min_pal3'])},${_formatValue(stats['max_pal3'])},${_formatValue(stats['avg_pal3'])}');
     buffer.writeln('');
 
-    // Data header with channel names
+    // Data header with channel names (8 + PAL3)
     buffer.writeln(
-        'Index,Timestamp,Time (ms),$_ch1Name,$_ch2Name,$_ch3Name,$_ch4Name,$_ch5Name,$_ch6Name,$_ch7Name,$_ch8Name');
+        'Index,Timestamp,Time (ms),$_ch1Name,$_ch2Name,$_ch3Name,$_ch4Name,$_ch5Name,$_ch6Name,$_ch7Name,$_ch8Name,$_pal3Name'); // UPDATED
 
     // Data rows
     final startMs = dataPoints.isNotEmpty
@@ -292,6 +310,7 @@ class CSVExporter {
       final relativeMs = point.timestamp.millisecondsSinceEpoch - startMs;
       final timeStr = DateFormat('HH:mm:ss.SSS').format(point.timestamp);
 
+      // NEW: Include PAL3 value in the data row
       buffer.writeln(
         '${i + 1},'
         '$timeStr,'
@@ -303,7 +322,8 @@ class CSVExporter {
         '${point.value5.toStringAsFixed(3)},'
         '${point.value6.toStringAsFixed(3)},'
         '${point.value7.toStringAsFixed(3)},'
-        '${point.value8.toStringAsFixed(3)}',
+        '${point.value8.toStringAsFixed(3)},'
+        '${_formatPAL3Value(point.pal3)}', // NEW: Add PAL3 value
       );
     }
 
@@ -315,6 +335,12 @@ class CSVExporter {
     if (value == null) return "N/A";
     if (value is num) return value.toStringAsFixed(3);
     return value.toString();
+  }
+
+  /// NEW: Format PAL3 value with fallback for null
+  static String _formatPAL3Value(double? value) {
+    if (value == null) return "N/A";
+    return value.toStringAsFixed(3);
   }
 
   static String _formatDuration(Duration duration) {
